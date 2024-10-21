@@ -1,1 +1,1 @@
-#EduTrack-An System Enrollment System
+# EduTrack-An Student Enrollment System
