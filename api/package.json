@@ -4,7 +4,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "dev": "nodemon src/index.ts"
+    "dev": "nodemon --env-file .env src/index.ts"
   },
   "keywords": [
     "typescript",
@@ -15,6 +15,15 @@
   "license": "ISC",
   "description": "",
   "devDependencies": {
-    "nodemon": "^3.1.7"
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.10.2",
+    "nodemon": "^3.1.9",
+    "prisma": "^6.1.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.7.2"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.1.0",
+    "express": "^4.21.2"
   }
 }
