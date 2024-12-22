@@ -6,3 +6,84 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model User {
+  id           String       @id @default(uuid())
+  fullname     String
+  username     String       @unique
+  email        String       @unique
+  password     String
+  avatar       String
+  refreshToken String
+  role         Role         @default(Student)
+  enrollments  Enrollment[] @relation("user")
+  created_at   DateTime     @default(now())
+  updated_at   DateTime     @updatedAt
+}
+
+model Course {
+  id          String       @id @default(uuid())
+  title       String
+  description String
+  enrollments Enrollment[] @relation("course")
+  created_at  DateTime     @default(now())
+  updated_at  DateTime     @updatedAt
+}
+
+model Enrollment {
+  id             String       @id @default(uuid())
+  course         Course       @relation("course", fields: [courseId], references: [id])
+  courseId       String
+  student        User         @relation("user", fields: [studentId], references: [id])
+  studentId      String
+  enrollmentDate DateTime
+  status         Status       @default(Active)
+  grade          Grade[]      @relation("enrollment")
+  attendance     Attendance[] @relation("enrollment")
+  created_at     DateTime     @default(now())
+  updated_at     DateTime     @updatedAt
+}
+
+model Grade {
+  id           String     @id @default(uuid())
+  enrollment   Enrollment @relation("enrollment", fields: [enrollmentId], references: [id])
+  enrollmentId String
+  grade        String
+  created_at   DateTime   @default(now())
+  updated_at   DateTime   @updatedAt
+}
+
+model Attendance {
+  id           String           @id @default(uuid())
+  enrollment   Enrollment       @relation("enrollment", fields: [enrollmentId], references: [id])
+  enrollmentId String
+  date         DateTime
+  status       AttendanceStatus
+  created_at   DateTime         @default(now())
+  updated_at   DateTime         @updatedAt
+}
+
+model Notice {
+  id         String   @id @default(uuid())
+  title      String
+  date       DateTime
+  body       String
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+enum Role {
+  Student
+  Admin
+  SuperAdmin
+}
+
+enum Status {
+  Active
+  NotActive
+}
+
+enum AttendanceStatus {
+  Present
+  Absent
+}
