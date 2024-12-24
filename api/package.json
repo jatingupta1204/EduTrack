@@ -1,10 +1,9 @@
 {
   "name": "edutrack-backend",
   "version": "1.0.0",
-  "main": "index.js",
-  "type": "module",
+  "main": "index.ts",
   "scripts": {
-    "dev": "nodemon --env-file .env src/index.ts"
+    "dev": "concurrently \"tsc -w\" \"nodemon --env-file .env dist/index.js\""
   },
   "keywords": [
     "typescript",
@@ -30,6 +29,7 @@
     "@prisma/client": "^6.1.0",
     "argon2": "^0.41.1",
     "cloudinary": "^2.5.1",
+    "concurrently": "^9.1.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "express": "^4.21.2",

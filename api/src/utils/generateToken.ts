@@ -1,19 +1,14 @@
 import jwt from "jsonwebtoken";
+import { JWTUserPayload } from "../types";
 
-interface User {
-    id: string;
-    email: string;
-    username: string;
-    fullname: string;
-}
 
-function generateAccessToken(user: User): string {
+
+function generateAccessToken(user: JWTUserPayload): string {
     return jwt.sign(
         {
             _id: user.id,
             email: user.email,
-            username: user.username,
-            fullname: user.fullname
+            username: user.username
         },
         <string>process.env.ACCESS_TOKEN_SECRET,
         {
@@ -22,7 +17,7 @@ function generateAccessToken(user: User): string {
     )
 }
 
-function generateRefreshToken(user: User): string {
+function generateRefreshToken(user: JWTUserPayload): string {
     return jwt.sign(
         {
             _id: user.id,
