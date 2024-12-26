@@ -6,7 +6,7 @@ import { JWTUserPayload } from "../types";
 function generateAccessToken(user: JWTUserPayload): string {
     return jwt.sign(
         {
-            _id: user.id,
+            _id: user._id,
             email: user.email,
             username: user.username
         },
@@ -20,7 +20,7 @@ function generateAccessToken(user: JWTUserPayload): string {
 function generateRefreshToken(user: JWTUserPayload): string {
     return jwt.sign(
         {
-            _id: user.id,
+            _id: user._id,
         },
         <string>process.env.REFRESH_TOKEN_SECRET,
         {

@@ -1,9 +1,39 @@
 import { prisma } from "..";
 import fs from "fs";
-import { CreateUserInput } from "../types";
+import { CreateUserInput, JWTUserPayload, LoginUser } from "../types";
 import { ApiError } from "../utils/ApiError";
 import { uploadOnCloudinary } from "../utils/cloudinary";
-import { hashpassword } from "../utils/password";
+import { hashpassword, verifyPassword } from "../utils/password";
+import { generateAccessToken, generateRefreshToken } from "../utils/generateToken";
+
+const generateAccessandRefreshToken = async(userid: string) =>{
+    try {
+        const user = await prisma.user.findFirst({
+            where: {
+                id: userid
+            }
+        });
+
+        if(!user){
+            throw new ApiError(404, "User not found");
+        }
+        
+        const payload: JWTUserPayload = {
+            _id: user.id,
+            email: user.email,
+            username: user.username,
+        };
+
+        const accessToken = generateAccessToken(payload);
+        const refreshToken = generateRefreshToken(payload);
+
+        user.refreshToken = refreshToken;
+
+        return { accessToken, refreshToken }
+    } catch (error) {
+        throw new ApiError(500, "Something went wrong while generating access and refresh token")
+    }
+}
 
 const CreateUser = async(input: CreateUserInput, avatarLocalPath?: string) => {
     const {fullname, username, email, password} = input;
@@ -59,4 +89,32 @@ const CreateUser = async(input: CreateUserInput, avatarLocalPath?: string) => {
     return createdUser;
 }
 
-export { CreateUser }
+const login = async(input: LoginUser) => {
+    const {username, password} = input;
+
+    if(!username){
+        throw new ApiError(400, "Username is Required")
+    }
+
+    const user = await prisma.user.findFirst({
+        where: {
+            username
+        }
+    });
+
+    if(!user){
+        throw new ApiError(404, "User does not exists")
+    }
+
+    const validatePassword = await verifyPassword(user.password, password);
+
+    if(!validatePassword){
+        throw new ApiError(401, "Invalid User Credentials")
+    }
+
+    const { accessToken, refreshToken } = await generateAccessandRefreshToken(user.id)
+
+    return { accessToken, refreshToken };
+}
+
+export { CreateUser, login }
