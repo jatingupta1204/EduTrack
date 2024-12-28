@@ -1,4 +1,5 @@
 import { CircleUserRound } from "lucide-react";
+import { Button } from "./components/ui/button"
 
 function Login() {
     return (
@@ -42,9 +43,9 @@ function Login() {
                 </div>
                 {/* Login Button */}
                 <div className="flex justify-center mb-6">
-                    <button className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-6 rounded-md w-full transition duration-300">
+                    <Button>
                         Login
-                    </button>
+                    </Button>
                 </div>
                 {/* Remember Me and Forgot Password */}
                 <div className="flex items-center justify-between">
