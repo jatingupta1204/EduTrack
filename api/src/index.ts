@@ -3,7 +3,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import { PrismaClient } from "@prisma/client";
 
-const PORT : number = Number.parseInt(<string>process.env.PORT, 10) || 8000;
+const PORT : number = Number.parseInt(<string>process.env.PORT, 10);
 
 const prisma = new PrismaClient();
 const app = express();
