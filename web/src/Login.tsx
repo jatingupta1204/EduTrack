@@ -1,72 +1,62 @@
-import { CircleUserRound } from "lucide-react";
-import { Button } from "./components/ui/button"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Card, CardContent } from "@/components/ui/card"
+import { Label } from "@/components/ui/label"
+import { Checkbox } from "@/components/ui/checkbox"
+import { CircleUserRound, Lock } from 'lucide-react'
+import { cn } from "@/lib/utils"
 
 function Login() {
-    return (
-        <div className="flex items-center justify-center my-14">
-            <div className="p-8 rounded-lg shadow-lg w-full max-w-md h-[500px] bg-white text-gray-800">
-                <div className="flex justify-center mb-6">
-                    <CircleUserRound className="w-24 h-24 text-blue-500" />
-                </div>
-                <h2 className="text-2xl font-bold text-center mb-4">Welcome Back</h2>
-                {/* Username Field */}
-                <div className="relative mb-6">
-                    <input
-                        type="text"
-                        name="Username"
-                        id="Username"
-                        className="w-full px-4 py-2 text-gray-800 bg-transparent border-b-2 border-blue-500 placeholder-transparent focus:outline-none focus:ring-0 peer"
-                        placeholder="Username"
-                    />
-                    <label
-                        htmlFor="Username"
-                        className="absolute left-4 top-1/2 transform -translate-y-1/2 text-sm text-blue-500 transition-all duration-300 peer-placeholder-shown:top-1/2 peer-placeholder-shown:text-gray-400 peer-placeholder-shown:text-base peer-focus:top-0 peer-focus:text-blue-400 peer-focus:text-xs px-1"
-                    >
-                        Username
-                    </label>
-                </div>
-                {/* Password Field */}
-                <div className="relative mb-6">
-                    <input
-                        type="password"
-                        name="Password"
-                        id="Password"
-                        className="w-full px-4 py-2 text-gray-800 bg-transparent border-b-2 border-blue-500 placeholder-transparent focus:outline-none focus:ring-0 peer"
-                        placeholder="Password"
-                    />
-                    <label
-                        htmlFor="Password"
-                        className="absolute left-4 top-1/2 transform -translate-y-1/2 text-sm text-blue-500 transition-all duration-300 peer-placeholder-shown:top-1/2 peer-placeholder-shown:text-gray-400 peer-placeholder-shown:text-base peer-focus:top-0 peer-focus:text-blue-400 peer-focus:text-xs px-1"
-                    >
-                        Password
-                    </label>
-                </div>
-                {/* Login Button */}
-                <div className="flex justify-center mb-6">
-                    <Button>
-                        Login
-                    </Button>
-                </div>
-                {/* Remember Me and Forgot Password */}
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center">
-                        <input
-                            type="checkbox"
-                            name="Remember_Me"
-                            id="Remember_Me"
-                            className="mr-2"
-                        />
-                        <label htmlFor="Remember_Me" className="text-sm">
-                            Remember Me
-                        </label>
-                    </div>
-                    <a href="#" className="text-blue-400 hover:text-blue-500 text-sm">
-                        Forgot your password?
-                    </a>
-                </div>
+  return (
+    <Card className={cn("w-full max-w-md mx-auto overflow-hidden")}>
+      <div className={cn("bg-gradient-to-r from-teal-500 to-teal-600 p-8 text-white text-center")}>
+        <CircleUserRound className={cn("w-20 h-20 mx-auto mb-4")} />
+        <h2 className={cn("text-3xl font-bold mb-2")}>Welcome Back</h2>
+        <p className={cn("text-teal-100")}>Sign in to access your account</p>
+      </div>
+      <CardContent className={cn("p-8")}>
+        <form className={cn("space-y-6")}>
+          <div className={cn("space-y-2")}>
+            <Label htmlFor="username" className={cn("text-sm font-medium text-gray-700")}>Username</Label>
+            <div className={cn("relative")}>
+              <Input
+                type="text"
+                id="username"
+                placeholder="Enter your username"
+                className={cn("pl-10 w-full border-gray-300 focus:border-teal-500 focus:ring-teal-500")}
+              />
+              <CircleUserRound className={cn("absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400")} size={18} />
             </div>
+          </div>
+
+          <div className={cn("space-y-2")}>
+            <Label htmlFor="password" className={cn("text-sm font-medium text-gray-700")}>Password</Label>
+            <div className={cn("relative")}>
+              <Input
+                type="password"
+                id="password"
+                placeholder="Enter your password"
+                className={cn("pl-10 w-full border-gray-300 focus:border-teal-500 focus:ring-teal-500")}
+              />
+              <Lock className={cn("absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400")} size={18} />
+            </div>
+          </div>
+
+          <Button type="submit" className={cn("w-full bg-teal-600 hover:bg-teal-700 text-white font-semibold py-3 rounded-lg transition-all duration-300 shadow-md hover:shadow-lg")}>
+            Sign In
+          </Button>
+        </form>
+
+        <div className={cn("flex items-center justify-between mt-6 text-sm")}>
+          <div className={cn("flex items-center space-x-2")}>
+            <Checkbox id="remember" />
+            <label htmlFor="remember" className={cn("text-gray-600")}>Remember Me</label>
+          </div>
+          <a href="#" className={cn("text-teal-600 hover:underline")}>Forgot password?</a>
         </div>
-    );
+      </CardContent>
+    </Card>
+  )
 }
 
 export default Login;

@@ -1,23 +1,20 @@
-import { LifeBuoy } from "lucide-react";
+import { Button } from "@/components/ui/button"
+import { HelpCircle } from 'lucide-react'
+import { cn } from "@/lib/utils"
 
 function Header() {
-    return (
-        <header className="flex items-center justify-between px-8 py-4 text-white">
-            <div className="flex items-center space-x-4">
-                <img src="/src/assets/Logo.png" alt="logo" className="w-10 h-10" />
-                <span className="text-lg font-bold">EDUTRACK</span>
-            </div>
-            <nav className="flex items-center space-x-6">
-                <a 
-                    href="#signin" 
-                    className="flex items-center bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded-full text-white transition duration-300 shadow-md hover:shadow-lg"
-                >
-                    <LifeBuoy className="mr-2" />
-                    <span className="font-medium">Help</span>
-                </a>
-            </nav>
-        </header>
-    );
+  return (
+    <header className={cn("flex items-center justify-between p-4 bg-white text-gray-900 shadow-md")}>
+      <div className="flex items-center space-x-2">
+        <img src="/src/assets/Logo.png" alt="EduTrack Logo" className="w-8 h-8" />
+        <h1 className="text-2xl font-bold text-teal-600">EduTrack</h1>
+      </div>
+      <Button variant="outline" size="sm" className={cn("text-teal-600 border-teal-600 hover:bg-teal-50")}>
+        <HelpCircle className="w-4 h-4 mr-2" />
+        Help
+      </Button>
+    </header>
+  )
 }
 
 export default Header;

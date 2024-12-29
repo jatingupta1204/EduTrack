@@ -1,22 +1,20 @@
 import Header from "./components/Header"
-import Updates from "./components/Updates"
 import Login from "./Login"
+import Notices from "./components/Notices"
+import { cn } from "@/lib/utils"
 
 function App() {
-
   return (
-    <div className="min-h-screen bg-gradient-to-r from-purple-800 to-blue-900">
+    <div className={cn("min-h-screen flex flex-col bg-gray-100")}>
       <Header />
-      <div className="flex w-full">
-        <div className="w-1/2">
+      <main className={cn("flex-grow flex items-center justify-center p-4")}>
+        <div className={cn("w-full max-w-6xl grid md:grid-cols-2 gap-8")}>
           <Login />
+          <Notices />
         </div>
-        <div className="w-1/2">
-          <Updates />
-        </div>
-      </div>
+      </main>
     </div>
   )
 }
 
-export default App
+export default App;
