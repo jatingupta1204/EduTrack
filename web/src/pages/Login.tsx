@@ -5,8 +5,62 @@ import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import { CircleUserRound, Lock } from 'lucide-react'
 import { cn } from "@/lib/utils"
+import { useState } from "react"
+import { useNavigate } from "react-router-dom";
+import { handleError } from "@/utils/errorAndSuccess"
 
 function Login() {
+  const [loginInfo, setLoginInfo] = useState({
+    username: '',
+    password: ''
+  })
+
+  const navigate = useNavigate();
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const {name, value} = e.target;
+    setLoginInfo((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleLoginIn = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const { username, password } = loginInfo;
+    if(!username || !password){
+      return handleError('username and password is required');
+    }
+    try {
+      const url = '/api/v1/users/login';
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(loginInfo)
+      });
+      const result = await response.json();
+      const { success, message, error } = result;
+      if(success){
+        setTimeout(() => {
+          navigate('/dashboard')
+        }, 1000)
+      }else if(error){
+        const details = error?.details[0].message || 'An error occurred';
+        console.log(error);
+        return handleError(details);
+      }else if(!success){
+        console.log(message);
+        return handleError(message);
+      }
+      console.log(result);
+    } catch (error) {
+      console.log('Error during login: ', error);
+      handleError('Invalid User Credentials');
+    }
+  };
+
   return (
     <Card className={cn("w-full max-w-md mx-auto overflow-hidden")}>
       <div className={cn("bg-gradient-to-r from-teal-500 to-teal-600 p-8 text-white text-center")}>
@@ -15,15 +69,17 @@ function Login() {
         <p className={cn("text-teal-100")}>Sign in to access your account</p>
       </div>
       <CardContent className={cn("p-8")}>
-        <form className={cn("space-y-6")}>
+        <form className={cn("space-y-6")} onSubmit={handleLoginIn}>
           <div className={cn("space-y-2")}>
             <Label htmlFor="username" className={cn("text-sm font-medium text-gray-700")}>Username</Label>
             <div className={cn("relative")}>
               <Input
+                onChange={handleChange}
                 type="text"
-                id="username"
+                name="username"
                 placeholder="Enter your username"
                 className={cn("pl-10 w-full border-gray-300 focus:border-teal-500 focus:ring-teal-500")}
+                value={loginInfo.username}
               />
               <CircleUserRound className={cn("absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400")} size={18} />
             </div>
@@ -33,10 +89,12 @@ function Login() {
             <Label htmlFor="password" className={cn("text-sm font-medium text-gray-700")}>Password</Label>
             <div className={cn("relative")}>
               <Input
+                onChange={handleChange}
                 type="password"
-                id="password"
+                name="password"
                 placeholder="Enter your password"
                 className={cn("pl-10 w-full border-gray-300 focus:border-teal-500 focus:ring-teal-500")}
+                value={loginInfo.password}
               />
               <Lock className={cn("absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400")} size={18} />
             </div>
