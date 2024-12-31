@@ -1,8 +1,9 @@
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { Button } from "./ui/button"
 import { ScrollArea } from "./ui/scroll-area"
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar"
 import { Home, ClipboardCheck, GraduationCap, Calendar, Settings, LogOut } from 'lucide-react'
+import { handleError } from '@/utils/errorAndSuccess'
 
 const sidebarItems = [
   { icon: Home, label: 'Home', href: '/dashboard' },
@@ -13,6 +14,27 @@ const sidebarItems = [
 ]
 
 export function Sidebar({ open, setOpen }: { open: boolean; setOpen: (open: boolean) => void }) {
+  const navigate = useNavigate();
+
+  const logout = async () => {
+    try {
+      const url = '/api/v1/users/logout'
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json'  
+        },
+      });
+      if(response.ok){
+        navigate('/')
+      }else{
+        return handleError("Failed to Logout");
+      }
+    } catch (error) {
+      return handleError("Failed to Logout");
+    }
+  }
+
   return (
     <div className={`fixed inset-y-0 left-0 z-50 w-64 transition-transform duration-300 ease-in-out ${
       open ? "translate-x-0" : "-translate-x-full"
@@ -45,7 +67,7 @@ export function Sidebar({ open, setOpen }: { open: boolean; setOpen: (open: bool
         </nav>
       </ScrollArea>
       <div className="p-4" style={{ borderTop: '1px solid hsl(var(--border))' }}>
-        <Button variant="ghost" className="w-full justify-start" style={{ color: 'hsl(var(--destructive))'}}>
+        <Button variant="ghost" className="w-full justify-start" style={{ color: 'hsl(var(--destructive))'}} onClick={logout}>
           <LogOut className="mr-2 h-4 w-4" />
           Logout
         </Button>

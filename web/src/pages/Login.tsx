@@ -48,15 +48,12 @@ function Login() {
         }, 1000)
       }else if(error){
         const details = error?.details[0].message || 'An error occurred';
-        console.log(error);
         return handleError(details);
       }else if(!success){
-        console.log(message);
         return handleError(message);
       }
       console.log(result);
     } catch (error) {
-      console.log('Error during login: ', error);
       handleError('Invalid User Credentials');
     }
   };
