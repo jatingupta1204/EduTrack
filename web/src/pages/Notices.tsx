@@ -1,16 +1,38 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
+import { useEffect, useState } from "react";
 
-const notices = [
-  { id: 1, title: "Exam Schedule Update", content: "Mid-term exams postponed by one week." },
-  { id: 2, title: "Library Closure", content: "Library will be closed for renovation next weekend." },
-  { id: 3, title: "New Course Offering", content: "Introduction to AI course now available for enrollment." },
-  { id: 4, title: "Campus Event", content: "Annual tech fest 'Innovate 2024' dates announced." },
-  { id: 5, title: "Scholarship Opportunity", content: "Applications open for merit-based scholarships." },
-  { id: 6, title: "Career Fair", content: "Upcoming career fair with top tech companies next month." },
-];
+interface Notice {
+  id: string;
+  title: string;
+  description: string;
+}
 
 function Notices() {
+  const [notices, setNotices] = useState<Notice[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() =>{
+    const fetchNotices = async () => {
+      try {
+        const response = await fetch('/api/v1/notices/getAllNotice');
+        console.log(response.status);
+        if(!response.ok){
+          throw new Error("Failed to fetch notices");
+        }
+        const data = await response.json();
+        console.log(data);
+        setNotices(data.data);
+      } catch (err: any) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchNotices();
+  }, []);
+
   return (
     <Card className={cn("w-full max-w-md mx-auto")}>
       <CardHeader className={cn("bg-gradient-to-r from-teal-500 to-teal-600 text-white")}>
@@ -18,14 +40,22 @@ function Notices() {
         <p className={cn("text-center text-sm text-teal-100 mt-2")}>Check out the latest updates and notifications.</p>
       </CardHeader>
       <CardContent className={cn("p-4")}>
-        <div className={cn("space-y-4 overflow-y-auto max-h-[400px] pr-2 scrollbar-hide")}>
-          {notices.map((notice) => (
-            <div key={notice.id} className={cn("bg-white p-4 rounded-lg shadow-md border border-gray-200")}>
-              <h3 className={cn("font-semibold text-gray-900 mb-2")}>{notice.title}</h3>
-              <p className={cn("text-gray-600 text-sm")}>{notice.content}</p>
-            </div>
-          ))}
-        </div>
+        {loading ? (
+          <p className={cn("text-center text-gray-500")}>Loading...</p>
+        ) : error ? (
+          <p className={cn("text-center text-red-500")}>{error}</p>
+        ) : notices.length > 0 ? (
+          <div className={cn("space-y-4 overflow-y-auto max-h-[400px] pr-2 scrollbar-hide")}>
+            {notices.map((notice) => (
+              <div key={notice.id} className={cn("bg-white p-4 rounded-lg shadow-md border border-gray-200")}>
+                <h3 className={cn("font-semibold text-gray-900 mb-2")}>{notice.title}</h3>
+                <p className={cn("text-gray-600 text-sm")}>{notice.description}</p>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className={cn("text-center text-gray-500")}>No notices available.</p>
+        )}
       </CardContent>
     </Card>
   )

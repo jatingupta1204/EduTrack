@@ -26,7 +26,7 @@ export function Sidebar({ open, setOpen }: { open: boolean; setOpen: (open: bool
         },
       });
       if(response.ok){
-        navigate('/')
+        navigate('/', { replace: true })
       }else{
         return handleError("Failed to Logout");
       }
