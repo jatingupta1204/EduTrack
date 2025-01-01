@@ -18,8 +18,10 @@ app.use(express.static("public"));
 app.use(cookieParser());
 
 import userRouter from "./routes/user.routers";
+import noticeRouter from "./routes/notice.routers"
 
 app.use("/api/v1/users", userRouter);
+app.use("/api/v1/notices", noticeRouter);
 
 app.listen(PORT, () => {
     console.log(`Server is running at PORT - ${PORT}`);

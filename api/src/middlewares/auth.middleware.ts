@@ -47,3 +47,17 @@ export const verifyJWT = asyncHandler(async(req: Request, res: Response, next: N
         throw new ApiError(401, "JWT Verification Error: Invalid access token");
     }
 })
+
+export const verifySuperAdmin = asyncHandler(async(req: Request, res: Response, next: NextFunction) => {
+    const user = await prisma.user.findUnique({
+        where: {
+            id: req.user?.id
+        }
+    });
+
+    if(!user || user.role != "SuperAdmin"){
+        throw new ApiError(401, "Invalid access: User is not an SuperAdmin");
+    }
+    req.user = user;
+    next()
+})

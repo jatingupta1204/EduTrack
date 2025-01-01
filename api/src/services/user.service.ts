@@ -44,7 +44,7 @@ const generateAccessandRefreshToken = async(userid: string) =>{
 }
 
 const CreateUser = async(input: CreateUserInput, avatarLocalPath?: string) => {
-    const {fullname, username, email, password} = input;
+    const {fullname, username, email, password, role} = input;
 
     if(!username || !email || !password){
         throw new ApiError(400, "All fields are required")
@@ -76,13 +76,19 @@ const CreateUser = async(input: CreateUserInput, avatarLocalPath?: string) => {
 
     const hashedPassword = await hashpassword(password);
 
-    const user = await prisma.user.create({data : {
-        fullname,
+    const userData : any = {
+        fullname, 
         username,
         email,
         password: hashedPassword,
         avatar: avatarUrl
-    }});
+    }
+
+    if(role){
+        userData.role = role;
+    }
+
+    const user = await prisma.user.create({ data: userData });
 
     const createdUser = await prisma.user.findUnique({
         where: {
