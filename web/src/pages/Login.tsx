@@ -8,6 +8,12 @@ import { cn } from "@/lib/utils"
 import { useState } from "react"
 import { useNavigate } from "react-router-dom";
 import { handleError } from "@/utils/errorAndSuccess"
+import { z } from "zod";
+
+const loginSchema = z.object({
+  username: z.string().nonempty("Username is required"),
+  password: z.string().nonempty("Password is required")
+});
 
 function Login() {
   const [loginInfo, setLoginInfo] = useState({
@@ -15,6 +21,7 @@ function Login() {
     password: ''
   })
 
+  const [errors, setErrors] = useState<{ username?: string; password?: string }>({});
   const navigate = useNavigate();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -27,11 +34,10 @@ function Login() {
 
   const handleLoginIn = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const { username, password } = loginInfo;
-    if(!username || !password){
-      return handleError('username and password is required');
-    }
+
     try {
+      loginSchema.parse(loginInfo);
+      setErrors({});
       const url = '/api/v1/users/login';
       const response = await fetch(url, {
         method: "POST",
@@ -52,9 +58,16 @@ function Login() {
       }else if(!success){
         return handleError(message);
       }
-      console.log(result);
-    } catch (error) {
-      handleError('Invalid User Credentials');
+    } catch (ZodError) {
+      if(ZodError instanceof z.ZodError){
+        const fieldError = ZodError.flatten().fieldErrors;
+        setErrors({
+          username: fieldError.username?.[0],
+          password: fieldError.password?.[0]
+        });
+      }else{
+        handleError('Invalid User Credentials');
+      }
     }
   };
 
@@ -80,6 +93,7 @@ function Login() {
               />
               <CircleUserRound className={cn("absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400")} size={18} />
             </div>
+            {errors.username && <p className="text-sm text-red-600">{errors.username}</p>}
           </div>
 
           <div className={cn("space-y-2")}>
@@ -95,6 +109,7 @@ function Login() {
               />
               <Lock className={cn("absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400")} size={18} />
             </div>
+            {errors.password && <p className="text-sm text-red-600">{errors.password}</p>}
           </div>
 
           <Button type="submit" className={cn("w-full bg-teal-600 hover:bg-teal-700 text-white font-semibold py-3 rounded-lg transition-all duration-300 shadow-md hover:shadow-lg")}>
