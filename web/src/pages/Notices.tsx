@@ -17,12 +17,10 @@ function Notices() {
     const fetchNotices = async () => {
       try {
         const response = await fetch('/api/v1/notices/getAllNotice');
-        console.log(response.status);
         if(!response.ok){
           throw new Error("Failed to fetch notices");
         }
         const data = await response.json();
-        console.log(data);
         setNotices(data.data);
       } catch (err: any) {
         setError(err.message);

@@ -1,10 +1,10 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 
-export default function StudentHome() {
+export default function AdminHome() {
   return (
     <>
-      <h1 className="text-3xl font-bold mb-6">Welcome, John! Student</h1>
+      <h1 className="text-3xl font-bold mb-6">Welcome, John! Admin</h1>
       
       {/* Attendance Section */}
       <Card className="mb-6">

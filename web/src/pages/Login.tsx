@@ -50,7 +50,14 @@ function Login() {
       const { success, message, error } = result;
       if(success){
         setTimeout(() => {
-          navigate('/dashboard')
+          if(result.data.role == "Student"){
+            console.log(result.data.role);
+            navigate('/dashboard')
+          }else if(result.data.role == "Admin"){
+            navigate('/dashboard/admin')
+          }else if(result.data.role == "SuperAdmin"){
+            navigate('/dashboard/superadmin')
+          }
         }, 1000)
       }else if(error){
         const details = error?.details[0].message || 'An error occurred';

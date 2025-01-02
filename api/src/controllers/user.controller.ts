@@ -36,7 +36,7 @@ const loginUser = asyncHandler(async(req: Request, res: Response) => {
     };
 
     res.status(200).cookie("accessToken", loggedUser.accessToken, option).cookie("refreshToken", loggedUser.refreshToken, option).json(
-        new ApiResponse(200, "User Logged In Successfully")
+        new ApiResponse(200, { role: loggedUser.user.role } ,"User Logged In Successfully")
     );
 })
 

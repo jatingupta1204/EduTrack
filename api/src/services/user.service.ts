@@ -128,7 +128,7 @@ const login = async(input: LoginUser) => {
 
     const { accessToken, refreshToken } = await generateAccessandRefreshToken(user.id)
 
-    return { accessToken, refreshToken };
+    return { accessToken, refreshToken, user };
 }
 
 const refreshedToken = async(incomingRefreshToken: string) => {
