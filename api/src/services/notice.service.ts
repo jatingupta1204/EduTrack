@@ -1,5 +1,5 @@
 import { prisma } from "..";
-import { CreateNoticeInput } from "../types/notice";
+import { CreateNoticeInput } from "../types/index";
 import { ApiError } from "../utils/ApiError";
 
 
@@ -47,7 +47,7 @@ const changeNotice = async(description: string, id: string) => {
             id: id
         }
     })
-
+    
     if(!notice){
         throw new ApiError(401, "Notice not found")
     }

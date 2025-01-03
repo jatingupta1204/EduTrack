@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { asyncHandler } from "../utils/asyncHandler";
-import { CreateNoticeInput } from "../types/notice";
+import { CreateNoticeInput } from "../types/index";
 import { addNotice, changeNotice } from "../services/notice.service";
 import { ApiResponse } from "../utils/ApiResponse";
 import { prisma } from "..";

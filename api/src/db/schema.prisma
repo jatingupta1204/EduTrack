@@ -23,7 +23,7 @@ model User {
 
 model Course {
   id          String       @id @default(uuid())
-  title       String
+  title       String @unique
   description String
   enrollments Enrollment[] @relation("course")
   created_at  DateTime     @default(now())
