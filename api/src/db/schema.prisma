@@ -32,10 +32,10 @@ model Course {
 
 model Enrollment {
   id             String       @id @default(uuid())
-  course         Course       @relation("course", fields: [courseId], references: [id])
-  courseId       String
-  student        User         @relation("user", fields: [studentId], references: [id])
-  studentId      String
+  course         Course       @relation("course", fields: [courseId], references: [id], onDelete: Cascade)
+  courseId       String @unique
+  user        User         @relation("user", fields: [userId], references: [id], onDelete: Cascade)
+  userId      String @unique
   enrollmentDate DateTime
   status         Status       @default(Active)
   grade          Grade[]      @relation("enrollment")
