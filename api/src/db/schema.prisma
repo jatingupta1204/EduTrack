@@ -9,56 +9,81 @@ datasource db {
 
 model User {
   id           String       @id @default(uuid())
-  fullname     String
   username     String       @unique
   email        String       @unique
   password     String
+  role         Role         @default(Student)
+  department Department @relation(fields: [departmentId], references: [id])
+  departmentId String
+  fullname     String
+  employeeId String
+  studentId String
+  admissionYear String
+  currentSemester Int
+  status StudentStatus
   avatar       String
   refreshToken String?
-  role         Role         @default(Student)
-  enrollments  Enrollment[] @relation("user")
+  enrollments  Enrollment[]
+  batches Batch[]
+  courseOfferings CourseOffering[]
+  grades Grade[]
+  attendances Attendance[]
   created_at   DateTime     @default(now())
   updated_at   DateTime     @updatedAt
 }
 
 model Course {
   id          String       @id @default(uuid())
+  departments Department @relation(fields: [departmentId], references: [id])
+  departmentId String
+  code String @unique
   title       String @unique
   description String
-  enrollments Enrollment[] @relation("course")
+  semesterNumber Int
+  courseOfferings CourseOffering[]
   created_at  DateTime     @default(now())
   updated_at  DateTime     @updatedAt
 }
 
 model Enrollment {
   id             String       @id @default(uuid())
-  course         Course       @relation("course", fields: [courseId], references: [id], onDelete: Cascade)
-  courseId       String @unique
-  user        User         @relation("user", fields: [userId], references: [id], onDelete: Cascade)
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId      String @unique
+  courseOfferings         CourseOffering       @relation(fields: [courseOfferingId], references: [id], onDelete: Cascade)
+  courseOfferingId       String
   enrollmentDate DateTime
+  semesters Semester @relation(fields: [semesterId], references: [id])
+  semesterId String
+  totalClasses Int
+  attendedClasses Int
+  absentClasses Int
+  attendancePercentage Float
   status         Status       @default(Active)
-  grade          Grade[]      @relation("enrollment")
-  attendance     Attendance[] @relation("enrollment")
+  grade          Grade[]
+  attendance     Attendance[]
   created_at     DateTime     @default(now())
   updated_at     DateTime     @updatedAt
 }
 
 model Grade {
   id           String     @id @default(uuid())
-  enrollment   Enrollment @relation("enrollment", fields: [enrollmentId], references: [id])
+  enrollment   Enrollment @relation(fields: [enrollmentId], references: [id])
   enrollmentId String
   grade        String
+  users User @relation(fields: [gradeBy], references: [id])
+  gradeBy String
   created_at   DateTime   @default(now())
   updated_at   DateTime   @updatedAt
 }
 
 model Attendance {
   id           String           @id @default(uuid())
-  enrollment   Enrollment       @relation("enrollment", fields: [enrollmentId], references: [id])
+  enrollment   Enrollment       @relation(fields: [enrollmentId], references: [id])
   enrollmentId String
-  date         DateTime
+  date         DateTime @default(now())
   status       AttendanceStatus
+  markedBy User @relation(fields: [markedById], references: [id])
+  markedById String
   created_at   DateTime         @default(now())
   updated_at   DateTime         @updatedAt
 }
@@ -66,8 +91,95 @@ model Attendance {
 model Notice {
   id         String   @id @default(uuid())
   title      String @unique
-  date       DateTime
   description       String
+  date       DateTime
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model Department {
+  id         String   @id @default(uuid())
+  school School @relation(fields: [schoolId], references: [id])
+  schoolId String 
+  name String
+  code String
+  description String
+  users User[]
+  batches Batch[]
+  courses Course[]
+  created_at DateTime @default(now())
+  updated_At DateTime @updatedAt
+}
+
+model School {
+  id  String  @id @default(uuid())
+  name String
+  code String
+  description String
+  departments Department[]
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model CourseOffering {
+  id String @id @default(uuid())
+  course Course @relation(fields: [courseId], references: [id])
+  courseId String
+  semester Semester @relation(fields: [semesterId], references: [id])
+  semesterId String
+  batch Batch @relation(fields: [batchId], references: [id])
+  batchId String
+  users User @relation(fields: [teacherId], references: [id])
+  teacherId String
+  maxStudents Int
+  scheduleInfo Json
+  status CourseOfferingStauts
+  enrollments Enrollment[]
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model Semester {
+  id String @id @default(uuid())
+  academicYear AcademicYear @relation(fields: [academicYearId], references: [id])
+  academicYearId String
+  type SemesterType
+  number Int
+  startDate DateTime
+  endDate DateTime
+  registrationStart DateTime
+  registrationEnd DateTime
+  status AcademicStatus
+  courseOfferings CourseOffering[]
+  enrollments Enrollment[]
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model AcademicYear {
+  id String @id @default(uuid())
+  year String
+  startDate DateTime
+  endDate DateTime
+  status AcademicStatus
+  semesters Semester[]
+  batched Batch[]
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model Batch {
+  id String @id @default(uuid())
+  departments Department @relation(fields: [departmentId], references: [id])
+  departmentId String
+  academicYear AcademicYear @relation(fields: [academicYearId], references: [id])
+  academicYearId String
+  name String
+  startSemester Int
+  capacity Int
+  users User @relation(fields: [coordinatorId], references: [id])
+  coordinatorId String
+  courseOfferings CourseOffering[]
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 }
@@ -83,7 +195,31 @@ enum Status {
   NotActive
 }
 
+enum StudentStatus {
+  Active
+  NotActive
+  Graduated
+  Suspended
+}
+
+enum AcademicStatus {
+  Active
+  Completed
+  Upcoming
+}
+
 enum AttendanceStatus {
   Present
   Absent
+}
+
+enum SemesterType {
+  Odd
+  Even
+}
+
+enum CourseOfferingStauts {
+  Scheduled
+  Ongoing
+  Completed
 }
