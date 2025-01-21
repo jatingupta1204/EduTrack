@@ -114,7 +114,7 @@ model Department {
 model School {
   id  String  @id @default(uuid())
   name String
-  code String
+  code String @unique
   description String
   departments Department[]
   created_at DateTime @default(now())

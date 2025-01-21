@@ -21,11 +21,13 @@ import userRouter from "./routes/user.routers";
 import noticeRouter from "./routes/notice.routers"
 import courseRouter from "./routes/course.routers"
 import enrollmentRouter from "./routes/enrollment.routers"
+import schoolRouter from "./routes/school.routers"
 
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/notices", noticeRouter);
 app.use("/api/v1/courses", courseRouter);
-app.use("/api/v1/enrollment", enrollmentRouter);
+app.use("/api/v1/enrollments", enrollmentRouter);
+app.use("/api/v1/schools", schoolRouter)
 
 app.listen(PORT, () => {
     console.log(`Server is running at PORT - ${PORT}`);
