@@ -158,7 +158,7 @@ model Semester {
 
 model AcademicYear {
   id         String         @id @default(uuid())
-  year       String
+  year       String         @unique
   startDate  DateTime
   endDate    DateTime
   status     AcademicStatus

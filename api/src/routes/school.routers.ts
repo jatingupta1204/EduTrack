@@ -8,7 +8,7 @@ const router = Router()
 router.route("/create").post(verifyJWT, verifySuperAdmin, createSchool);
 router.route("/delete/:id").delete(verifyJWT, verifySuperAdmin, deleteSchool);
 router.route("/update/:id").put(verifyJWT, verifySuperAdmin, updateSchool);
-router.route("/getAllCourse").get(getAllSchool);
-router.route("/getSingleCourse/:id").get(getSchoolById);
+router.route("/getAllSchool").get(getAllSchool);
+router.route("/getSingleSchool/:id").get(getSchoolById);
 
 export default router;

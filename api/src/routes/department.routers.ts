@@ -8,7 +8,7 @@ const router = Router()
 router.route("/create").post(verifyJWT, verifySuperAdmin, createDepartment);
 router.route("/delete/:id").delete(verifyJWT, verifySuperAdmin, deleteDepartment);
 router.route("/update/:id").put(verifyJWT, verifySuperAdmin, updateDepartment);
-router.route("/getAllCourse").get(getAllDepartment);
-router.route("/getSingleCourse/:id").get(getDepartmentById);
+router.route("/getAllDepartment").get(getAllDepartment);
+router.route("/getSingleDepartment/:id").get(getDepartmentById);
 
 export default router;
