@@ -4,3 +4,7 @@ export * from "./course";
 export * from "./enrollment";
 export * from "./attendance";
 export * from "./school";
+export * from "./department";
+export * from "./academicYear";
+export * from "./batch";
+export * from "./semester";

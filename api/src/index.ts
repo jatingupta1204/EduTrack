@@ -23,7 +23,8 @@ import courseRouter from "./routes/course.routers";
 import enrollmentRouter from "./routes/enrollment.routers";
 import schoolRouter from "./routes/school.routers";
 import departmentRouter from "./routes/department.routers";
-import academicYear from "./routes/academicYear.routers";
+import academicYearRouter from "./routes/academicYear.routers";
+import semesterRouter from "./routes/semester.routers"
 
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/notices", noticeRouter);
@@ -31,7 +32,8 @@ app.use("/api/v1/courses", courseRouter);
 app.use("/api/v1/enrollments", enrollmentRouter);
 app.use("/api/v1/schools", schoolRouter);
 app.use("/api/v1/departments", departmentRouter);
-app.use("/api/v1/academicYears", academicYear);
+app.use("/api/v1/academicYears", academicYearRouter);
+app.use("/api/v1/semesters", semesterRouter);
 
 app.listen(PORT, () => {
     console.log(`Server is running at PORT - ${PORT}`);

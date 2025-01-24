@@ -144,7 +144,7 @@ model Semester {
   academicYear      AcademicYear     @relation(fields: [academicYearId], references: [id])
   academicYearId    String
   type              SemesterType
-  number            Int
+  number            Int              @unique
   startDate         DateTime
   endDate           DateTime
   registrationStart DateTime
@@ -163,7 +163,7 @@ model AcademicYear {
   endDate    DateTime
   status     AcademicStatus
   semesters  Semester[]
-  batched    Batch[]
+  batches    Batch[]
   created_at DateTime       @default(now())
   updated_at DateTime       @updatedAt
 }
