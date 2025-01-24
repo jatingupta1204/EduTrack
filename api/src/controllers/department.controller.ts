@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { asyncHandler } from "../utils/asyncHandler";
-import { createDepartmentInput } from "../types/department";
+import { createDepartmentInput } from "../types/index";
 import { addDepartment } from "../services/department.service";
 import { ApiResponse } from "../utils/ApiResponse";
 import { prisma } from "..";

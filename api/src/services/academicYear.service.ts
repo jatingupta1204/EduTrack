@@ -1,6 +1,6 @@
 import { AcademicStatus } from "@prisma/client";
 import { prisma } from "..";
-import { createAcademicYearInput } from "../types/academicYear";
+import { createAcademicYearInput } from "../types/index";
 import { ApiError } from "../utils/ApiError";
 
 

@@ -4,9 +4,9 @@ import { ApiError } from "../utils/ApiError";
 
 
 const addCourse = async(input: CreateCourseInput) => {
-    const { title, description } = input;
+    const { title, description, semesterNumber, code } = input;
 
-    if(!title || !description){
+    if(!title || !description || !code || !semesterNumber){
         throw new ApiError(400, "All fields are required");
     }
 
@@ -23,7 +23,9 @@ const addCourse = async(input: CreateCourseInput) => {
     const course = await prisma.course.create({
         data: {
             title,
-            description
+            code,
+            description,
+            semesterNumber
         }
     });
     
@@ -48,7 +50,7 @@ const changeCourse = async(description: string, id: string) => {
     });
 
     if(!course){
-        throw new ApiError(401, "Notice not found")
+        throw new ApiError(401, "Course not found")
     }
 
     const updatedCouse = await prisma.course.update({

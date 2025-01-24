@@ -1,5 +1,5 @@
 import { prisma } from "..";
-import { createDepartmentInput } from "../types/department";
+import { createDepartmentInput } from "../types/index";
 import { ApiError } from "../utils/ApiError";
 
 

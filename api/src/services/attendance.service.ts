@@ -53,4 +53,27 @@ const giveAttendance = async(input: CreateAttendanceInput) => {
     return attendanceGiven;
 }
 
-export { giveAttendance }
+const changeAttendance = async(status: AttendanceStatus, id: string) => {
+    const attendance = await prisma.attendance.findUnique({
+        where: {
+            id: id
+        }
+    });
+
+    if(!attendance){
+        throw new ApiError(401, "Attendance not found")
+    }
+
+    const updatedAttendance = await prisma.attendance.update({
+        where: {
+            id: id
+        },
+        data: {
+            status
+        }
+    })
+
+    return updatedAttendance;
+}
+
+export { giveAttendance, changeAttendance }
