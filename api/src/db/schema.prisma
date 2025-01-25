@@ -174,9 +174,8 @@ model Batch {
   departmentId    String
   academicYear    AcademicYear     @relation(fields: [academicYearId], references: [id])
   academicYearId  String
-  name            String
-  startSemester   Int
-  capacity        Int
+  name            String           @unique
+  capacity        Int              @default(50)
   users           User             @relation(fields: [coordinatorId], references: [id])
   coordinatorId   String
   courseOfferings CourseOffering[]
