@@ -55,8 +55,22 @@ export const verifySuperAdmin = asyncHandler(async(req: Request, res: Response, 
         }
     });
 
-    if(!user || user.role != "SuperAdmin"){
+    if(!user || user.role !== "SuperAdmin"){
         throw new ApiError(401, "Invalid access: User is not an SuperAdmin");
+    }
+    req.user = user;
+    next()
+})
+
+export const verifyAdmin = asyncHandler(async(req: Request, res: Response, next: NextFunction) => {
+    const user = await prisma.user.findUnique({
+        where: {
+            id: req.user?.id
+        }
+    });
+
+    if(!user || (user.role !== "SuperAdmin" && user.role !== "Admin")){
+        throw new ApiError(401, "Invalid access: User is not an Admin or SuperAdmin");
     }
     req.user = user;
     next()
