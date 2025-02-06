@@ -31,9 +31,9 @@ const deleteSchool = asyncHandler(async(req: Request, res: Response) => {
 
 const updateSchool = asyncHandler(async(req: Request, res: Response) => {
     const { id } = req.params;
-    const { name, description } = req.body
+    const { name, description } = req.body; 
 
-    const school = await changeSchool(name, description, id)
+    const school = await changeSchool(id, name, description)
 
     const { ...updatedSchool } = school;
 

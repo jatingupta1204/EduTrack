@@ -1,3 +1,5 @@
+import { StudentStatus } from "@prisma/client";
+
 export interface JWTUserPayload {
     _id: string;
     email: string;
@@ -5,12 +7,18 @@ export interface JWTUserPayload {
 }
 
 export interface CreateUserInput {
-    fullname: string;
     username: string;
     email: string;
     password: string;
     role: string;
+    departmentId: string;
+    first_name: string;
+    last_name: string;
+    admissionYear: number;
+    currentSemester: number;
     avatar: string;
+    batchId: string;
+    status: StudentStatus;
 }
 
 export interface LoginUser{

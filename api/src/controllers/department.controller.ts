@@ -1,10 +1,9 @@
 import { Request, Response } from "express";
 import { asyncHandler } from "../utils/asyncHandler";
 import { createDepartmentInput } from "../types/index";
-import { addDepartment } from "../services/department.service";
+import { addDepartment, changeDepartment } from "../services/department.service";
 import { ApiResponse } from "../utils/ApiResponse";
 import { prisma } from "..";
-import { changeSchool } from "../services/school.service";
 import { ApiError } from "../utils/ApiError";
 
 
@@ -35,7 +34,7 @@ const updateDepartment = asyncHandler(async(req: Request, res: Response) => {
 
     const { name, description, schoolId } = req.body;
 
-    const department = await changeSchool(name, description, schoolId);
+    const department = await changeDepartment(id, name, description, schoolId);
 
     const { ...updatedDepartment } = department
 

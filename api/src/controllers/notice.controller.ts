@@ -37,7 +37,7 @@ const updateNotice = asyncHandler(async(req: Request, res: Response) => {
 
     const { ...updatedNotice } = notice
 
-    res.status(200).json(new ApiResponse(200, notice, "Notice Updated Successfully"));
+    res.status(200).json(new ApiResponse(200, updatedNotice, "Notice Updated Successfully"));
 })
 
 const getAllNotice = asyncHandler(async(req: Request, res: Response) => {

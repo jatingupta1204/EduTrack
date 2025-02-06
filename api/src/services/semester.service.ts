@@ -5,9 +5,9 @@ import { ApiError } from "../utils/ApiError";
 
 
 const addSemester = async(input: createSemesterInput) => {
-    const { academicYearId, type, number, startDate, endDate, registrationStart, registrationEnd, status } = input;
+    const { academicYear, type, number, startDate, endDate, registrationStart, registrationEnd, status } = input;
 
-    if(!academicYearId || !type || !number|| !startDate || !endDate || !registrationStart || !registrationEnd || !status){
+    if(!academicYear || !type || !number|| !startDate || !endDate || !registrationStart || !registrationEnd || !status){
         throw new ApiError(400, "All fields are required");
     }
 
@@ -23,7 +23,7 @@ const addSemester = async(input: createSemesterInput) => {
 
     const semester = await prisma.semester.create({
         data: {
-            academicYearId,
+            academicYear,
             type: type as SemesterType,
             number,
             startDate,
@@ -47,8 +47,8 @@ const addSemester = async(input: createSemesterInput) => {
     return createdSemester;
 }
 
-const changeSemester = async(input: changeSemesterInfo) => {
-    const { id, ...data }  = input;
+const changeSemester = async(id: string, input: changeSemesterInfo) => {
+    const { ...data }  = input;
 
     const existingSemester = await prisma.semester.findUnique({
         where: {

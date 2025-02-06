@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { asyncHandler } from "../utils/asyncHandler";
-import { CreateCourseInput } from "../types";
+import { changeCourseInfo, CreateCourseInput } from "../types";
 import { addCourse, changeCourse } from "../services/course.service";
 import { ApiResponse } from "../utils/ApiResponse";
 import { prisma } from "..";
@@ -8,7 +8,7 @@ import { ApiError } from "../utils/ApiError";
 
 
 const createCourse = asyncHandler(async(req: Request, res: Response) => {
-    const input: CreateCourseInput = req.body
+    const input: CreateCourseInput = req.body;
 
     const newCourse = await addCourse(input);
 
@@ -31,13 +31,13 @@ const deleteCourse = asyncHandler(async(req: Request, res: Response) => {
 
 const updateCourse = asyncHandler(async(req: Request, res: Response) => {
     const { id } = req.params;
-    const { description } = req.body;
+    const input: changeCourseInfo = req.body;
 
-    const course = await changeCourse(description, id);
+    const course = await changeCourse(input, id);
 
     const { ...updatedCourse } = course;
 
-    res.status(200).json(new ApiResponse(200, course, "Course Updated Successfully"));
+    res.status(200).json(new ApiResponse(200, updatedCourse, "Course Updated Successfully"));
 })
 
 const getAllCourse = asyncHandler(async(req: Request, res: Response) => {

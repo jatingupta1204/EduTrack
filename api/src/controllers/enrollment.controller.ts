@@ -38,15 +38,11 @@ const unenrollStudent = asyncHandler(async(req: Request, res: Response) => {
 })
 
 const getAllEnrollment = asyncHandler(async(req: Request, res: Response) => {
-    const userId = req?.user?.id
-
-    if(!userId){
-        throw new ApiError(401, "Unauthorized Request");
-    }
+    const { id } = req.params
 
     const enrollment = await prisma.enrollment.findMany({
         where: {
-            userId: userId
+            studentId: id
         }
     })
 

@@ -32,9 +32,9 @@ const deleteBatch = asyncHandler(async(req: Request, res: Response) => {
 const updateBatch = asyncHandler(async(req: Request, res: Response) => {
     const { id } = req.params;
 
-    const { academicYearId, coordinatorId } = req.body;
+    const { semesterId, schedule_info, coordinatorId } = req.body;
 
-    const batch = await changeBatch(academicYearId, coordinatorId);
+    const batch = await changeBatch(id, semesterId, schedule_info, coordinatorId);
 
     const { ...updatedBatch } = batch;
 

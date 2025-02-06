@@ -1,7 +1,6 @@
 export interface createDepartmentInput {
-    id: string;
+    schoolId: string;
     name: string;
     code: string;
     description: string;
-    schoolId: string
 }

@@ -4,11 +4,13 @@ import { ApiError } from "../utils/ApiError";
 
 
 const enrollment = async(input: CreateEnrollmentInput, userId: string) => {
-    const { courseId, enrollmentDate } = input
+    const { teacherId, courseId, semesterId, totalClasses, attendedClasses, absentClasses } = input
 
-    if(!courseId){
+    if(!teacherId || !courseId || !semesterId || totalClasses === undefined || attendedClasses === undefined || absentClasses === undefined){
         throw new ApiError(400, "All fields are required");
     }
+
+    const attendancePercentage = (attendedClasses / totalClasses) * 100;
 
     const course = await prisma.course.findUnique({
         where: {
@@ -32,8 +34,8 @@ const enrollment = async(input: CreateEnrollmentInput, userId: string) => {
 
     const alreadyEnrolled = await prisma.enrollment.findFirst({
         where: {
-            userId: userId,
-            courseId: courseId,
+            studentId: userId,
+            courseId,
         }
     })
 
@@ -43,9 +45,14 @@ const enrollment = async(input: CreateEnrollmentInput, userId: string) => {
 
     const enroll = await prisma.enrollment.create({
         data: {
-            userId,
+            studentId: userId,
+            teacherId,
             courseId,
-            enrollmentDate: enrollmentDate ? new Date(enrollmentDate) : new Date()
+            semesterId,
+            totalClasses,
+            attendedClasses,
+            absentClasses,
+            attendancePercentage,
         }
     })
     

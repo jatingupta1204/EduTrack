@@ -4,9 +4,9 @@ import { ApiError } from "../utils/ApiError";
 
 
 const addBatch = async(input: createBatchInput) => {
-    const { departmentId, academicYearId, name, coordinatorId } = input;
+    const { departmentId, semesterId, name, schedule_info, coordinatorId } = input;
 
-    if(!departmentId || !academicYearId || !name || !coordinatorId){
+    if(!departmentId || !semesterId || !name || !coordinatorId){
         throw new ApiError(400, "All fields are required")
     }
 
@@ -23,8 +23,9 @@ const addBatch = async(input: createBatchInput) => {
     const batch = await prisma.batch.create({
         data: {
             departmentId,
-            academicYearId,
+            semesterId,
             name,
+            schedule_info,
             coordinatorId
         }
     })
@@ -42,7 +43,7 @@ const addBatch = async(input: createBatchInput) => {
     return createdBatch
 }
 
-const changeBatch = async(id: string, academicYearId?: string, coordinatorId?: string) => {
+const changeBatch = async(id: string, semesterId?: string, schedule_info?: Record<string, any>, coordinatorId?: string) => {
     const existingBatch = await prisma.batch.findUnique({
         where: {
             id: id
@@ -58,7 +59,8 @@ const changeBatch = async(id: string, academicYearId?: string, coordinatorId?: s
             id: id
         },
         data: {
-            academicYearId,
+            semesterId,
+            schedule_info,
             coordinatorId
         }
     });

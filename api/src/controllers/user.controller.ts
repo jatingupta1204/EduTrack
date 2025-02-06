@@ -10,13 +10,7 @@ import { prisma } from "..";
 const registerUser = asyncHandler(async(req: Request, res: Response) => {
     const input : CreateUserInput = req.body;
 
-    const avatarLocalPath = req.file?.path;
-
-    if(!avatarLocalPath){
-        throw new ApiError(400, "Avatar file is required");
-    }
-
-    const newUser = await CreateUser(input, avatarLocalPath);
+    const newUser = await CreateUser(input);
 
     const { password, refreshToken, ...createdUser } = newUser;
 
@@ -127,11 +121,17 @@ const getAllUser = asyncHandler(async(req: Request, res: Response) => {
     const user = await prisma.user.findMany({
         select: {
             id: true,
-            fullname: true,
+            first_name: true,
+            last_name: true,
             username: true,
             email: true,
             avatar: true,
             role: true,
+            departmentId: true,
+            admissionYear: true,
+            currentSemester: true,
+            status: true,
+            batchId: true,
             created_at: true,
             updated_at: true
         }

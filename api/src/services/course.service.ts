@@ -1,30 +1,35 @@
 import { prisma } from "..";
-import { CreateCourseInput } from "../types";
+import { changeCourseInfo, CreateCourseInput } from "../types";
 import { ApiError } from "../utils/ApiError";
 
 
 const addCourse = async(input: CreateCourseInput) => {
-    const { title, description, semesterNumber, code } = input;
+    const { departmentId, credits, lecture_classes, tutorial_classes, practical_classes, title, description, semesterNumber, code } = input;
 
-    if(!title || !description || !code || !semesterNumber){
+    if(!title || !description || !code || !semesterNumber || !departmentId || credits === undefined || lecture_classes === undefined || tutorial_classes === undefined || practical_classes === undefined){
         throw new ApiError(400, "All fields are required");
     }
 
-    const exisitngCourse = await prisma.course.findUnique({
+    const exisitingCourse = await prisma.course.findUnique({
         where: {
-            title: title
+            code
         }
     });
 
-    if(exisitngCourse){
+    if(exisitingCourse){
         throw new ApiError(409, "Course already exists");
     }
 
     const course = await prisma.course.create({
         data: {
-            title,
+            departmentId,
             code,
+            title,
             description,
+            credits,
+            lecture_classes,
+            tutorial_classes,
+            practical_classes,
             semesterNumber
         }
     });
@@ -42,10 +47,10 @@ const addCourse = async(input: CreateCourseInput) => {
     return createdCourse;
 }
 
-const changeCourse = async(description: string, id: string) => {
+const changeCourse = async(input: changeCourseInfo, id: string) => {
     const course = await prisma.course.findUnique({
         where: {
-            id: id
+            id
         }
     });
 
@@ -53,13 +58,19 @@ const changeCourse = async(description: string, id: string) => {
         throw new ApiError(401, "Course not found")
     }
 
+    const filteredData = Object.fromEntries(
+        Object.entries(input).filter(([_, value]) => value !== undefined && value !== null)
+    );
+
+    if (Object.keys(filteredData).length === 0) {
+        throw new ApiError(400, "No valid fields to update");
+    }
+
     const updatedCouse = await prisma.course.update({
         where: {
             id: id
         },
-        data: {
-            description
-        }
+        data: filteredData
     });
 
     return updatedCouse;

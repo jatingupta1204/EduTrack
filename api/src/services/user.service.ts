@@ -6,6 +6,7 @@ import { deleteFromCloudinary, uploadOnCloudinary } from "../utils/cloudinary";
 import { hashpassword, verifyPassword } from "../utils/password";
 import { generateAccessToken, generateRefreshToken } from "../utils/generateToken";
 import jwt from "jsonwebtoken";
+import { StudentStatus } from "@prisma/client";
 
 const generateAccessandRefreshToken = async(userid: string) =>{
     try {
@@ -43,45 +44,37 @@ const generateAccessandRefreshToken = async(userid: string) =>{
     }
 }
 
-const CreateUser = async(input: CreateUserInput, avatarLocalPath?: string) => {
-    const {fullname, username, email, password, role} = input;
+const CreateUser = async(input: CreateUserInput) => {
+    const {username, email, password, role, departmentId, first_name, last_name, admissionYear, currentSemester, batchId, status} = input;
 
-    if(!username || !email || !password){
+    if(!username || !email || !password || !first_name || !last_name){
         throw new ApiError(400, "All fields are required")
     }
 
     const existingUser = await prisma.user.findUnique({
         where: {
-            email: email,
+            email
         },
     });
 
     if(existingUser){
-        if (avatarLocalPath && fs.existsSync(avatarLocalPath)) {
-            fs.unlinkSync(avatarLocalPath);
-        }
         throw new ApiError(409, "User already exists");
-    }
-
-    let avatarUrl = "";
-    if (avatarLocalPath) {
-        const avatar = await uploadOnCloudinary(avatarLocalPath);
-
-        if (!avatar) {
-            throw new ApiError(500, "Failed to upload avatar to Cloudinary");
-        }
-
-        avatarUrl = avatar.url;
     }
 
     const hashedPassword = await hashpassword(password);
 
     const userData : any = {
-        fullname, 
         username,
         email,
         password: hashedPassword,
-        avatar: avatarUrl
+        role,
+        first_name,
+        last_name,
+        departmentId,
+        admissionYear,
+        currentSemester,
+        batchId,
+        status: status as StudentStatus
     }
 
     if(role){

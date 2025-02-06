@@ -1,8 +1,7 @@
 import { AcademicStatus, SemesterType } from "@prisma/client";
 
 export interface createSemesterInput {
-    id: string;
-    academicYearId: string;
+    academicYear: number;
     type: SemesterType;
     number: number;
     startDate: Date;
@@ -13,8 +12,7 @@ export interface createSemesterInput {
 }
 
 export interface changeSemesterInfo {
-    id: string;
-    academicYearId: string;
+    academicYear: number;
     startDate: Date;
     endDate: Date;
     registrationStart: Date;

@@ -6,8 +6,8 @@ import { enrollStudent, getAllEnrollment, getEnrollmentById, unenrollStudent } f
 const router = Router()
 
 router.route("/enroll").post(verifyJWT, enrollStudent);
-router.route("/unenroll").delete(verifyJWT, verifySuperAdmin, unenrollStudent);
-router.route("/getAllEnrollment").get(verifyJWT, getAllEnrollment);
-router.route("/getSingleEnrollment").get(getEnrollmentById);
+router.route("/unenroll/:id").delete(verifyJWT, verifySuperAdmin, unenrollStudent);
+router.route("/getAllEnrollment").get(getAllEnrollment);
+router.route("/getSingleEnrollment/:id").get(getEnrollmentById);
 
 export default router;

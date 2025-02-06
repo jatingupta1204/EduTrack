@@ -30,9 +30,10 @@ const deleteSemester = asyncHandler(async(req: Request, res: Response) => {
 })
 
 const updateSemester = asyncHandler(async(req: Request, res: Response) => {
+    const { id } = req.params;
     const input: changeSemesterInfo = req.body;
 
-    const semester = await changeSemester(input);
+    const semester = await changeSemester(id, input);
 
     const { ...updatedSemester } = semester;
 

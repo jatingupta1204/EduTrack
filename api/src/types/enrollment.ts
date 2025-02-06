@@ -1,6 +1,9 @@
 export interface CreateEnrollmentInput {
+    studentId: string;
+    teacherId: string;
     courseId: string;
-    userId: string;
-    status: string;
-    enrollmentDate: Date;
+    semesterId: string;
+    totalClasses: number;
+    attendedClasses: number;
+    absentClasses: number;
 }

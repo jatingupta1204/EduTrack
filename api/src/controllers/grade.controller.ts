@@ -50,6 +50,9 @@ const updateGrade = asyncHandler(async(req: Request, res: Response) => {
 const getAllGrade = asyncHandler(async(req: Request, res: Response) => {
     const userId = req.user?.id
 
+    console.log(req.user);
+    
+
     if(!userId){
         throw new ApiError(404, "User Not Found")
     }
@@ -79,15 +82,15 @@ const getAllGrade = asyncHandler(async(req: Request, res: Response) => {
 })
 
 const getGradeById = asyncHandler(async(req: Request, res: Response) => {
-    const { enrollmentId } = req.params;
+    const { id } = req.params;
 
-    if(!enrollmentId){
+    if(!id){
         throw new ApiError(400, "Enrollment ID is required");
     }
 
     const gradeRecords = await prisma.grade.findMany({
         where: {
-            enrollmentId
+            enrollmentId: id
         }
     });
 

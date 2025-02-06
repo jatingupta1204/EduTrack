@@ -4,10 +4,10 @@ import { CreateAttendanceInput } from "../types";
 import { ApiError } from "../utils/ApiError";
 
 
-const giveAttendance = async(input: CreateAttendanceInput) => {
+const giveAttendance = async(input: CreateAttendanceInput, userId: string) => {
     const { enrollmentId, status } = input;
 
-    if(!enrollmentId || !status ){
+    if(!enrollmentId || !status || !userId ){
         throw new ApiError(400, "All fields are required");
     }
 
@@ -21,7 +21,7 @@ const giveAttendance = async(input: CreateAttendanceInput) => {
         throw new ApiError(404, "Enrolled Student not found");
     }
 
-    const today = new Date().toISOString().split("T")[0];
+    const today = new Date().toISOString();
     const existingAttendance = await prisma.attendance.findFirst({
         where: {
             enrollmentId: enrollmentId,
@@ -36,7 +36,8 @@ const giveAttendance = async(input: CreateAttendanceInput) => {
     const attendance = await prisma.attendance.create({
         data: {
             enrollmentId,
-            status: status as AttendanceStatus
+            status: status as AttendanceStatus,
+            markedById: userId
         }
     });
 

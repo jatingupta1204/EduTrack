@@ -1,8 +1,7 @@
 export interface createBatchInput {
-    id: string;
     departmentId: string;
-    academicYearId: string;
+    semesterId: string;
     name: string;
-    capacity: number;
+    schedule_info: Record<string, any>;
     coordinatorId: string;
 }

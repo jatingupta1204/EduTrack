@@ -9,29 +9,29 @@ datasource db {
 
 // User model
 model User {
-  id              String        @id @default(uuid())
-  username        String        @unique
-  email           String        @unique
-  password        String
-  role            Role
-  department      Department?   @relation(fields: [departmentId], references: [id], onDelete: Cascade)
-  departmentId    String?
-  first_name      String?
-  last_name       String?
-  admissionYear   Int?
-  currentSemester Int?
-  status          StudentStatus
-  avatar          String?
-  refreshToken    String?
-  studentEnrollments Enrollment[] @relation(name: "StudentEnrollments") // Student enrollments
-  teacherEnrollments Enrollment[] @relation(name: "TeacherEnrollments") // Teacher enrollments
-  grades          Grade[]
-  attendances     Attendance[]
-  batchesCoordinated Batch[] @relation(name: "BatchCoordinator") // Teacher coordinating batches
-  batch             Batch?   @relation(name: "BatchStudents", fields: [batchId], references: [id], onDelete: Cascade)
-  batchId           String?
-  created_at      DateTime      @default(now())
-  updated_at      DateTime      @updatedAt
+  id                 String        @id @default(uuid())
+  username           String        @unique
+  email              String        @unique
+  password           String
+  role               Role
+  department         Department?   @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  departmentId       String?
+  first_name         String
+  last_name          String
+  admissionYear      String?
+  currentSemester    String?
+  status             StudentStatus? @default(Active)
+  avatar             String?
+  refreshToken       String?
+  studentEnrollments Enrollment[]  @relation(name: "StudentEnrollments") // Student enrollments
+  teacherEnrollments Enrollment[]  @relation(name: "TeacherEnrollments") // Teacher enrollments
+  grades             Grade[]
+  attendances        Attendance[]
+  batchesCoordinated Batch[]       @relation(name: "BatchCoordinator") // Teacher coordinating batches
+  batch              Batch?        @relation(name: "BatchStudents", fields: [batchId], references: [id], onDelete: Cascade)
+  batchId            String?
+  created_at         DateTime      @default(now())
+  updated_at         DateTime      @updatedAt
 }
 
 // Course model
@@ -54,15 +54,15 @@ model Course {
 
 // Enrollment model
 model Enrollment {
-  id                   String       @id @default(uuid())
-  student              User         @relation(name: "StudentEnrollments", fields: [studentId], references: [id], onDelete: Cascade)
+  id                   String           @id @default(uuid())
+  student              User             @relation(name: "StudentEnrollments", fields: [studentId], references: [id], onDelete: Cascade)
   studentId            String
-  teacher              User         @relation(name: "TeacherEnrollments", fields: [teacherId], references: [id], onDelete: Cascade)
+  teacher              User             @relation(name: "TeacherEnrollments", fields: [teacherId], references: [id], onDelete: Cascade)
   teacherId            String
-  course               Course       @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  course               Course           @relation(fields: [courseId], references: [id], onDelete: Cascade)
   courseId             String
-  enrollmentDate       DateTime     @default(now())
-  semester             Semester     @relation(fields: [semesterId], references: [id], onDelete: Cascade)
+  enrollmentDate       DateTime         @default(now())
+  semester             Semester         @relation(fields: [semesterId], references: [id], onDelete: Cascade)
   semesterId           String
   totalClasses         Int
   attendedClasses      Int
@@ -71,8 +71,8 @@ model Enrollment {
   status               EnrollmentStatus @default(Enrolled)
   grades               Grade[]
   attendances          Attendance[]
-  created_at           DateTime     @default(now())
-  updated_at           DateTime     @updatedAt
+  created_at           DateTime         @default(now())
+  updated_at           DateTime         @updatedAt
 }
 
 // Grade model
@@ -161,7 +161,7 @@ model Batch {
   semester      Semester   @relation(fields: [semesterId], references: [id], onDelete: Cascade)
   semesterId    String
   name          String     @unique
-  schedule_info Json
+  schedule_info Json?
   capacity      Int        @default(50)
   coordinator   User       @relation(name: "BatchCoordinator", fields: [coordinatorId], references: [id], onDelete: Cascade)
   coordinatorId String
