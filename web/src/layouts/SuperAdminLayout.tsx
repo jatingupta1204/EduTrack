@@ -3,12 +3,12 @@ import { Outlet } from 'react-router-dom'
 import { Navbar } from '@/components/Navbar'
 import { Sidebar } from '@/components/Sidebar'
 
-export function SuperAminLayout() {
+export function SuperAdminLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   return (
     <div className="flex h-screen bg-background">
-      <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} />
+      <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} role='superadmin' />
       <div className="flex-1 flex flex-col overflow-hidden">
         <Navbar onMenuButtonClick={() => setSidebarOpen((prev) => !prev)} />
         <main className="flex-1 overflow-x-hidden overflow-y-auto bg-background">

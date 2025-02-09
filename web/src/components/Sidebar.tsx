@@ -2,23 +2,64 @@ import { Link, useNavigate } from 'react-router-dom'
 import { Button } from "./ui/button"
 import { ScrollArea } from "./ui/scroll-area"
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar"
-import { Home, ClipboardCheck, GraduationCap, Calendar, Settings, LogOut } from 'lucide-react'
+import { Home, ClipboardCheck, GraduationCap, Calendar, Settings, LogOut, School, Briefcase, BookOpen, Bell, Users, UserPlus, User } from 'lucide-react'
 import { handleError } from '@/utils/errorAndSuccess'
 
-const sidebarItems = [
+const studentSidebarItems = [
   { icon: Home, label: 'Home', href: '/dashboard' },
   { icon: ClipboardCheck, label: 'Attendance', href: '/dashboard/attendance' },
   { icon: GraduationCap, label: 'Grades', href: '/dashboard/grades' },
   { icon: Calendar, label: 'Semester Registration', href: '/dashboard/semester-registration' },
   { icon: Settings, label: 'Settings', href: '/dashboard/settings' },
-]
+];
 
-export function Sidebar({ open, setOpen }: { open: boolean; setOpen: (open: boolean) => void }) {
+const adminSidebarItems = [
+  { icon: Home, label: 'Home', href: '/dashboard/admin' },
+  { icon: Users, label: 'Manage Students', href: '/dashboard/admin/students' },
+  { icon: Briefcase, label: 'Departments', href: '/dashboard/admin/departments' },
+  { icon: BookOpen, label: 'Courses', href: '/dashboard/admin/courses' },
+  { icon: Bell, label: 'Notices', href: '/dashboard/admin/notices' },
+  { icon: User, label: 'Teachers', href: '/dashboard/admin/teachers' },
+  { icon: Settings, label: 'Settings', href: '/dashboard/admin/settings' },
+];
+
+const superAdminSidebarItems = [
+  { icon: Home, label: 'Home', href: '/dashboard/superadmin' },
+  { icon: School, label: 'Schools', href: '/dashboard/superadmin/school' },
+  { icon: Calendar, label: 'Semesters', href: '/dashboard/superadmin/semester' },
+  { icon: Briefcase, label: 'Departments', href: '/dashboard/superadmin/department' },
+  { icon: BookOpen, label: 'Courses', href: '/dashboard/superadmin/course' },
+  { icon: Bell, label: 'Notices', href: '/dashboard/superadmin/notice' },
+  { icon: Users, label: 'Batches', href: '/dashboard/superadmin/batch' },
+  { icon: UserPlus, label: 'Create Students', href: '/dashboard/superadmin/create-student' },
+  { icon: Settings, label: 'Settings', href: '/dashboard/superadmin/setting' },
+];
+
+interface SidebarProps {
+  open: boolean;
+  setOpen: (open: boolean) => void;
+  role: 'student' | 'admin' | 'superadmin';
+}
+
+export function Sidebar({ open, setOpen, role }: SidebarProps) {
   const navigate = useNavigate();
+  
+  // Select sidebar items based on role
+  let sidebarItems;
+  switch (role) {
+    case 'admin':
+      sidebarItems = adminSidebarItems;
+      break;
+    case 'superadmin':
+      sidebarItems = superAdminSidebarItems;
+      break;
+    default:
+      sidebarItems = studentSidebarItems;
+  }
 
   const logout = async () => {
     try {
-      const url = '/api/v1/users/logout'
+      const url = '/api/v1/users/logout';
       const response = await fetch(url, {
         method: "POST",
         headers: {
@@ -26,8 +67,8 @@ export function Sidebar({ open, setOpen }: { open: boolean; setOpen: (open: bool
         },
       });
       if(response.ok){
-        navigate('/', { replace: true })
-      }else{
+        navigate('/', { replace: true });
+      } else {
         return handleError("Failed to Logout");
       }
     } catch (error) {
@@ -47,12 +88,11 @@ export function Sidebar({ open, setOpen }: { open: boolean; setOpen: (open: bool
           </svg>
         </Button>
         <Avatar className="w-24 h-24 mb-4">
-          <AvatarImage src="/placeholder.svg?height=96&width=96" alt="Student" />
+          <AvatarImage src="/placeholder.svg?height=96&width=96" alt="User Avatar" />
           <AvatarFallback>JD</AvatarFallback>
         </Avatar>
         <h2 className="text-xl font-semibold mb-1">John Doe</h2>
-        <p className="text-sm mb-1" style={{ color: 'hsl(var(--muted-foreground))' }}>Computer Science</p>
-        <p className="text-sm" style={{ color: 'hsl(var(--muted-foreground))' }}>Semester 4</p>
+        <p className="text-sm mb-1" style={{ color: 'hsl(var(--muted-foreground))' }}>Role: {role.charAt(0).toUpperCase() + role.slice(1)}</p>
       </div>
       <ScrollArea className="flex-grow">
         <nav className="p-4 space-y-2">

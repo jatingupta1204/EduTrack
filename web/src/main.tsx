@@ -12,6 +12,16 @@ import Settings from './dashboards/student/Settings.tsx'
 import AdminHome from './dashboards/admin/Home.tsx'
 import { AdminLayout } from './layouts/AdminLayout.tsx'
 import SuperAdminHome from './dashboards/superadmin/Home.tsx'
+import Batches from './dashboards/superadmin/Batches.tsx'
+import Courses from './dashboards/superadmin/Courses.tsx'
+import CreateStudents from './dashboards/superadmin/CreateStudent.tsx'
+import Notices from './dashboards/superadmin/Notices.tsx'
+import Schools from './dashboards/superadmin/Schools.tsx'
+import Departments from './dashboards/superadmin/Departments.tsx'
+import { SuperAdminLayout } from './layouts/SuperAdminLayout.tsx'
+import ImportStudents from './dashboards/superadmin/ImportStudent.tsx'
+import Semesters from './dashboards/superadmin/Semesters.tsx'
+// import CRUDPage from './dashboards/superadmin/CRUDPage.tsx'
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -27,8 +37,16 @@ const router = createBrowserRouter(
       <Route path='/dashboard/admin' element={<AdminLayout />}>
         <Route index element={<AdminHome />} />
       </Route>
-      <Route path='/dashboard/superadmin' element={<AdminLayout />}>
+      <Route path='/dashboard/superadmin' element={<SuperAdminLayout />}>
         <Route index element={<SuperAdminHome />} />
+        <Route path='batch' element={<Batches />} />
+        <Route path='semester' element={<Semesters />} />
+        <Route path='course' element={<Courses />} />
+        <Route path='create-student' element={<CreateStudents />} />
+        <Route path='notice' element={<Notices />} />
+        <Route path='school' element={<Schools />} />
+        <Route path='import-student' element={<ImportStudents />} />
+        <Route path='department' element={<Departments />} />
       </Route>
     </>
   )
