@@ -7,26 +7,50 @@ const columns = [
   { key: 'description' as const, header: 'Description' },
 ]
 
+interface School {
+  id: string
+  name: string
+  code: string
+  description: string
+}
+
 export default function Schools() {
-  const [schools, setSchools] = useState<{id: string; name:string; code:string; description: string }[]>([])
+  const [schools, setSchools] = useState<School[]>([])
+  const [currentPage, setCurrentPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
+  const pageSize = 5 // Number of schools per page
 
   useEffect(() => {
-    fetch('/api/v1/schools/getAllSchool')
-      .then((res) => res.json())
-      .then((data) => setSchools(data.data))
-      .catch((err) => console.error('Error fetching schools: ', err))
-  }, [])
+    fetchSchools(currentPage)
+  }, [currentPage])
 
-  const handleSave = async (school: { name: string; code: string; description: string }) => {
+  const fetchSchools = async (page: number) => {
     try {
-      const response = await fetch('/api/v1/schools/create', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(school),
-      })
-      if(response.ok) {
-        const result = await response.json()
-        setSchools((prev) => [...prev, result.data])
+      const response = await fetch(`/api/v1/schools/getAllSchool?page=${page}&limit=${pageSize}`)
+      const data = await response.json()
+      setSchools(data.data.school)
+      setTotalPages(data.data.totalPages) // Assuming backend returns total pages
+    } catch (error) {
+      console.error('Error fetching schools:', error)
+    }
+  }
+
+  const handleSave = async (school: School) => {
+    try {
+      const response = school.id
+        ? await fetch(`/api/v1/schools/update/${school.id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(school),
+          })
+        : await fetch('/api/v1/schools/create', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(school),
+          })
+
+      if (response.ok) {
+        fetchSchools(currentPage)
       }
     } catch (error) {
       console.error('Error saving school:', error)
@@ -34,12 +58,14 @@ export default function Schools() {
   }
 
   const handleDelete = async (school: { id: string }) => {
+    if (!window.confirm(`Are you sure you want to delete ${school.id}?`)) return
+
     try {
       const response = await fetch(`/api/v1/schools/delete/${school.id}`, {
         method: 'DELETE',
       })
-      if(response.ok) {
-        setSchools((prev) => prev.filter((s) => s.id !== school.id))
+      if (response.ok) {
+        fetchSchools(currentPage)
       }
     } catch (error) {
       console.error('Error deleting school:', error)
@@ -53,6 +79,9 @@ export default function Schools() {
       columns={columns}
       onSave={handleSave}
       onDelete={handleDelete}
+      currentPage={currentPage}
+      totalPages={totalPages}
+      onPageChange={setCurrentPage}
     />
   )
 }

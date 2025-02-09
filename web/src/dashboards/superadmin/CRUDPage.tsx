@@ -4,27 +4,40 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Button } from "../../components/ui/button"
 import { Input } from "../../components/ui/input"
 import { Label } from "../../components/ui/label"
+import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogFooter } from '../../components/ui/alert-dialog'
 
-interface CRUDPageProps<T> {
+interface BaseItem {
+  id: string
+  name: string
+}
+
+interface CRUDPageProps<T extends BaseItem> {
   title: string
   data: T[]
   columns: { key: keyof T; header: string }[]
   onSave: (item: T) => void
   onDelete: (item: T) => void
+  currentPage: number
+  totalPages: number
+  onPageChange: (page: number) => void
 }
 
-export default function CRUDPage<T extends { id: string }>({ 
+export default function CRUDPage<T extends BaseItem>({ 
   title, 
   data, 
   columns, 
   onSave, 
-  onDelete 
+  onDelete,
+  currentPage,
+  totalPages,
+  onPageChange 
 }: CRUDPageProps<T>) {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [currentItem, setCurrentItem] = useState<Partial<T>>({})
+  const [deleteItem, setDeleteItem] = useState<T | null>(null) // Track delete item
 
   const handleCreate = () => {
-    setCurrentItem({})
+    setCurrentItem({} as T) // Ensure type safety
     setIsDialogOpen(true)
   }
 
@@ -38,22 +51,20 @@ export default function CRUDPage<T extends { id: string }>({
     setIsDialogOpen(false)
   }
 
-  const handleDelete = (item: T) => {
-    if (window.confirm(`Are you sure you want to delete this ${title.slice(0, -1)}?`)) {
-      onDelete(item)
-    }
-  }
-
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold">{title}</h1>
       <DataTable
         data={data}
         columns={columns}
         onEdit={handleEdit}
-        onDelete={handleDelete}
+        onDelete={(item) => setDeleteItem(item)} // Open delete modal
         onCreate={handleCreate}
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={onPageChange}
       />
+
+      {/* Create/Edit Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent>
           <DialogHeader>
@@ -77,6 +88,20 @@ export default function CRUDPage<T extends { id: string }>({
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={!!deleteItem} onOpenChange={() => setDeleteItem(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirm Delete</AlertDialogTitle>
+          </AlertDialogHeader>
+          <p>Are you sure you want to delete <strong>{deleteItem?.name}</strong>?</p>
+          <AlertDialogFooter>
+            <Button variant="outline" onClick={() => setDeleteItem(null)}>Cancel</Button>
+            <Button variant="destructive" onClick={() => { onDelete(deleteItem!); setDeleteItem(null) }}>Delete</Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

@@ -10,23 +10,28 @@ interface DataTableProps<T> {
   onEdit: (item: T) => void
   onDelete: (item: T) => void
   onCreate: () => void
+  totalPages: number
+  currentPage: number
+  onPageChange: (page: number) => void
 }
 
-export function DataTable<T>({ data, columns, onEdit, onDelete, onCreate }: DataTableProps<T>) {
-  const [currentPage, setCurrentPage] = useState(1)
+export function DataTable<T>({
+  data,
+  columns,
+  onEdit,
+  onDelete,
+  onCreate,
+  totalPages,
+  currentPage,
+  onPageChange
+}: DataTableProps<T>) {
   const [searchTerm, setSearchTerm] = useState('')
-  const itemsPerPage = 10
 
   const filteredData = data.filter((item) =>
     Object.values(item as Record<string, unknown>).some((value) =>
       value?.toString().toLowerCase().includes(searchTerm.toLowerCase())
     )
   )
-
-  const totalPages = Math.ceil(filteredData.length / itemsPerPage)
-  const startIndex = (currentPage - 1) * itemsPerPage
-  const endIndex = startIndex + itemsPerPage
-  const currentData = filteredData.slice(startIndex, endIndex)
 
   return (
     <div>
@@ -54,7 +59,7 @@ export function DataTable<T>({ data, columns, onEdit, onDelete, onCreate }: Data
           </TableRow>
         </TableHeader>
         <TableBody>
-          {currentData.map((item, index) => (
+          {filteredData.map((item, index) => (
             <TableRow key={index}>
               {columns.map((column) => (
                 <TableCell key={column.key.toString()}>
@@ -74,14 +79,12 @@ export function DataTable<T>({ data, columns, onEdit, onDelete, onCreate }: Data
         </TableBody>
       </Table>
       <div className="flex items-center justify-between mt-4">
-        <div>
-          Showing {startIndex + 1}-{Math.min(endIndex, filteredData.length)} of {filteredData.length}
-        </div>
+        <div>Page {currentPage} of {totalPages}</div>
         <div className="flex items-center space-x-2">
           <Button
             variant="outline"
             size="sm"
-            onClick={() => setCurrentPage(1)}
+            onClick={() => onPageChange(1)}
             disabled={currentPage === 1}
           >
             <ChevronsLeft className="h-4 w-4" />
@@ -89,18 +92,16 @@ export function DataTable<T>({ data, columns, onEdit, onDelete, onCreate }: Data
           <Button
             variant="outline"
             size="sm"
-            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+            onClick={() => onPageChange(currentPage - 1)}
             disabled={currentPage === 1}
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
-          <span>
-            Page {currentPage} of {totalPages}
-          </span>
+          <span>Page {currentPage}</span>
           <Button
             variant="outline"
             size="sm"
-            onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+            onClick={() => onPageChange(currentPage + 1)}
             disabled={currentPage === totalPages}
           >
             <ChevronRight className="h-4 w-4" />
@@ -108,7 +109,7 @@ export function DataTable<T>({ data, columns, onEdit, onDelete, onCreate }: Data
           <Button
             variant="outline"
             size="sm"
-            onClick={() => setCurrentPage(totalPages)}
+            onClick={() => onPageChange(totalPages)}
             disabled={currentPage === totalPages}
           >
             <ChevronsRight className="h-4 w-4" />
