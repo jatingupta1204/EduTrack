@@ -41,9 +41,22 @@ const updateSemester = asyncHandler(async(req: Request, res: Response) => {
 })
 
 const getAllSemester = asyncHandler(async(req: Request, res: Response) => {
-    const semester = await prisma.semester.findMany({});
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 5;
+    const paginate = req.query.paginate === "true";
+    const skip = (page - 1) * limit;
 
-    res.status(200).json(new ApiResponse(200, semester, "Semesters Fetched Successfully"));
+    const semester = await prisma.semester.findMany({
+        ...(paginate ? { skip, take: limit } : {}),
+        orderBy: {
+            number: 'asc',
+        },
+    });
+
+    const totalSemesters = await prisma.semester.count();
+    const totalPages = paginate ? Math.ceil(totalSemesters / limit) : 1;
+
+    res.status(200).json(new ApiResponse(200, {semester, totalPages}, "Semesters fetched Successfully"));
 })
 
 const getSemesterById = asyncHandler(async(req: Request, res: Response) => {

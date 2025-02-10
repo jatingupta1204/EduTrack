@@ -20,6 +20,7 @@ interface CRUDPageProps<T extends BaseItem> {
   currentPage: number
   totalPages: number
   onPageChange: (page: number) => void
+  renderForm?: (item: T, setItem: (item: T) => void) => JSX.Element
 }
 
 export default function CRUDPage<T extends BaseItem>({ 
@@ -30,14 +31,15 @@ export default function CRUDPage<T extends BaseItem>({
   onDelete,
   currentPage,
   totalPages,
-  onPageChange 
+  onPageChange,
+  renderForm
 }: CRUDPageProps<T>) {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [currentItem, setCurrentItem] = useState<Partial<T>>({})
-  const [deleteItem, setDeleteItem] = useState<T | null>(null) // Track delete item
+  const [deleteItem, setDeleteItem] = useState<T | null>(null)
 
   const handleCreate = () => {
-    setCurrentItem({} as T) // Ensure type safety
+    setCurrentItem({} as T)
     setIsDialogOpen(true)
   }
 
@@ -57,7 +59,7 @@ export default function CRUDPage<T extends BaseItem>({
         data={data}
         columns={columns}
         onEdit={handleEdit}
-        onDelete={(item) => setDeleteItem(item)} // Open delete modal
+        onDelete={(item) => setDeleteItem(item)}
         onCreate={handleCreate}
         currentPage={currentPage}
         totalPages={totalPages}
@@ -70,18 +72,25 @@ export default function CRUDPage<T extends BaseItem>({
           <DialogHeader>
             <DialogTitle>{currentItem.id ? `Edit ${title.slice(0, -1)}` : `Create ${title.slice(0, -1)}`}</DialogTitle>
           </DialogHeader>
-          <div className="space-y-4">
-            {columns.map((column) => (
-              <div key={column.key.toString()}>
-                <Label htmlFor={column.key.toString()}>{column.header}</Label>
-                <Input
-                  id={column.key.toString()}
-                  value={currentItem[column.key] as string || ''}
-                  onChange={(e) => setCurrentItem({ ...currentItem, [column.key]: e.target.value })}
-                />
-              </div>
-            ))}
-          </div>
+
+          {/* Custom Form (if provided) */}
+          {renderForm ? (
+            renderForm(currentItem as T, setCurrentItem as (item: T) => void)
+          ) : (
+            <div className="space-y-4">
+              {columns.map((column) => (
+                <div key={column.key.toString()}>
+                  <Label htmlFor={column.key.toString()}>{column.header}</Label>
+                  <Input
+                    id={column.key.toString()}
+                    value={currentItem[column.key] as string || ''}
+                    onChange={(e) => setCurrentItem({ ...currentItem, [column.key]: e.target.value })}
+                  />
+                </div>
+              ))}
+            </div>
+          )}
+
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsDialogOpen(false)}>Cancel</Button>
             <Button onClick={handleSave}>Save</Button>
