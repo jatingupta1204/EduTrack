@@ -12,6 +12,7 @@ function Notices() {
   const [notices, setNotices] = useState<Notice[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [expandedNotice, setExpandedNotice] = useState<string | null>(null)
 
   useEffect(() =>{
     const fetchNotices = async () => {
@@ -21,7 +22,7 @@ function Notices() {
           throw new Error("Failed to fetch notices");
         }
         const data = await response.json();
-        setNotices(data.data);
+        setNotices(data.data.notice);
       } catch (err: any) {
         setError(err.message);
       } finally {
@@ -45,10 +46,23 @@ function Notices() {
         ) : notices.length > 0 ? (
           <div className={cn("space-y-4 overflow-y-auto max-h-[400px] pr-2 scrollbar-hide")}>
             {notices.map((notice) => (
-              <div key={notice.id} className={cn("bg-white p-4 rounded-lg shadow-md border border-gray-200")}>
-                <h3 className={cn("font-semibold text-gray-900 mb-2")}>{notice.title}</h3>
-                <p className={cn("text-gray-600 text-sm")}>{notice.description}</p>
-              </div>
+              <div
+              key={notice.id}
+              className="bg-white p-4 rounded-lg shadow-md border border-gray-200 cursor-pointer transition-all"
+              onClick={() => setExpandedNotice(expandedNotice === notice.id ? null : notice.id)}
+            >
+              <h3 className="font-semibold text-gray-900 mb-2">{notice.title}</h3>
+              <p className="text-gray-600 text-sm">
+                {expandedNotice === notice.id
+                  ? notice.description
+                  : `${notice.description.slice(0, 60)}${notice.description.length > 60 ? "..." : ""}`}
+              </p>
+              {notice.description.length > 60 && (
+                <span className="text-teal-600 text-sm font-semibold mt-2 block">
+                  {expandedNotice === notice.id ? "Show Less ▲" : "Read More ▼"}
+                </span>
+              )}
+            </div>
             ))}
           </div>
         ) : (

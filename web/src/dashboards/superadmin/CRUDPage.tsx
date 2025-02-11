@@ -8,7 +8,8 @@ import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, A
 
 interface BaseItem {
   id: string
-  name: string
+  name?: string
+  title?: string
 }
 
 interface CRUDPageProps<T extends BaseItem> {
