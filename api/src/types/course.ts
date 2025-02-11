@@ -1,7 +1,7 @@
 export interface CreateCourseInput{
     departmentId: string;
     code: string;
-    title: string;
+    name: string;
     description: string;
     credits: number;
     lecture_classes: number;

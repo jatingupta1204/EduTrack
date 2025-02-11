@@ -4,9 +4,9 @@ import { ApiError } from "../utils/ApiError";
 
 
 const addCourse = async(input: CreateCourseInput) => {
-    const { departmentId, credits, lecture_classes, tutorial_classes, practical_classes, title, description, semesterNumber, code } = input;
+    const { departmentId, credits, lecture_classes, tutorial_classes, practical_classes, name, description, semesterNumber, code } = input;
 
-    if(!title || !description || !code || !semesterNumber || !departmentId || credits === undefined || lecture_classes === undefined || tutorial_classes === undefined || practical_classes === undefined){
+    if(!name || !description || !code || !semesterNumber || !departmentId || credits === undefined || lecture_classes === undefined || tutorial_classes === undefined || practical_classes === undefined){
         throw new ApiError(400, "All fields are required");
     }
 
@@ -24,7 +24,7 @@ const addCourse = async(input: CreateCourseInput) => {
         data: {
             departmentId,
             code,
-            title,
+            name,
             description,
             credits,
             lecture_classes,

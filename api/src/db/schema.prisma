@@ -9,12 +9,12 @@ datasource db {
 
 // User model
 model User {
-  id                 String        @id @default(uuid())
-  username           String        @unique
-  email              String        @unique
+  id                 String         @id @default(uuid())
+  username           String         @unique
+  email              String         @unique
   password           String
   role               Role
-  department         Department?   @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  department         Department?    @relation(fields: [departmentId], references: [id], onDelete: Cascade)
   departmentId       String?
   first_name         String
   last_name          String
@@ -23,15 +23,15 @@ model User {
   status             StudentStatus? @default(Active)
   avatar             String?
   refreshToken       String?
-  studentEnrollments Enrollment[]  @relation(name: "StudentEnrollments") // Student enrollments
-  teacherEnrollments Enrollment[]  @relation(name: "TeacherEnrollments") // Teacher enrollments
+  studentEnrollments Enrollment[]   @relation(name: "StudentEnrollments") // Student enrollments
+  teacherEnrollments Enrollment[]   @relation(name: "TeacherEnrollments") // Teacher enrollments
   grades             Grade[]
   attendances        Attendance[]
-  batchesCoordinated Batch[]       @relation(name: "BatchCoordinator") // Teacher coordinating batches
-  batch              Batch?        @relation(name: "BatchStudents", fields: [batchId], references: [id], onDelete: Cascade)
+  batchesCoordinated Batch[]        @relation(name: "BatchCoordinator") // Teacher coordinating batches
+  batch              Batch?         @relation(name: "BatchStudents", fields: [batchId], references: [id], onDelete: Cascade)
   batchId            String?
-  created_at         DateTime      @default(now())
-  updated_at         DateTime      @updatedAt
+  created_at         DateTime       @default(now())
+  updated_at         DateTime       @updatedAt
 }
 
 // Course model
@@ -40,7 +40,7 @@ model Course {
   department        Department   @relation(fields: [departmentId], references: [id], onDelete: Cascade)
   departmentId      String
   code              String       @unique
-  title             String       @unique
+  name              String       @unique
   description       String
   credits           Int
   lecture_classes   Int

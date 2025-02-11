@@ -41,9 +41,19 @@ const updateCourse = asyncHandler(async(req: Request, res: Response) => {
 })
 
 const getAllCourse = asyncHandler(async(req: Request, res: Response) => {
-    const course = await prisma.course.findMany({});
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 5;
+    const paginate = req.query.paginate === "false" ? false : true;
+    const skip = (page - 1) * limit;
 
-    res.status(200).json(new ApiResponse(200, course, "Courses fetched Successfully"));
+    const course = await prisma.course.findMany({
+        ...(paginate ? {skip, take: limit} : {}),
+    });
+
+    const totalCourse = await prisma.course.count();
+    const totalPages = paginate ? Math.ceil(totalCourse / limit) : 1;
+
+    res.status(200).json(new ApiResponse(200, {course, totalPages}, "Courses fetched Successfully"));
 })
 
 const getCourseById = asyncHandler(async(req: Request, res: Response) => {
