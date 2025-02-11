@@ -43,7 +43,7 @@ const updateSchool = asyncHandler(async(req: Request, res: Response) => {
 const getAllSchool = asyncHandler(async(req: Request, res: Response) => {
     const page = Number(req.query.page) || 1;
     const limit = Number(req.query.limit) || 5;
-    const paginate = req.query.paginate === "true";
+    const paginate = req.query.paginate === "false" ? false : true;
     const skip = (page - 1) * limit;
 
     const school = await prisma.school.findMany({
