@@ -6,7 +6,6 @@ import { ApiError } from "../utils/ApiError";
 import { ApiResponse } from "../utils/ApiResponse";
 import { prisma } from "..";
 
-
 const registerUser = asyncHandler(async(req: Request, res: Response) => {
     const input : CreateUserInput = req.body;
 
@@ -18,6 +17,35 @@ const registerUser = asyncHandler(async(req: Request, res: Response) => {
         new ApiResponse(200, createdUser, "User registered successfully")
     );
 })
+
+const bulkCreate = asyncHandler(async (req: Request, res: Response) => {
+    const { users } = req.body;
+
+    if (!Array.isArray(users) || users.length === 0) {
+        throw new ApiError(400, "Invalid or empty user data");
+    }
+
+    const formattedUsers = users.map(user => ({
+        first_name: user.first_name,
+        last_name: user.last_name,
+        email: user.email,
+        username: user.username,
+        password: user.password,
+        role: user.role || "Student",
+        departmentId: user.departmentId || null,
+        admissionYear: user.admissionYear || null,
+        currentSemester: user.currentSemester || null,
+        batchId: user.batchId || null,
+    }));
+
+    const createdUsers = await prisma.user.createMany({
+        data: formattedUsers,
+        skipDuplicates: true
+    });
+
+    res.status(201).json(new ApiResponse(201, createdUsers, "Users created successfully"));
+});
+
 
 const loginUser = asyncHandler(async(req: Request, res: Response) => {
     const input : LoginUser = req.body;
@@ -118,8 +146,13 @@ const deleteUser = asyncHandler(async(req: Request, res: Response) => {
 })
 
 const getAllUser = asyncHandler(async(req: Request, res: Response) => {
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 5;
+    const paginate = req.query.paginate === "false" ? false : true;
+    const skip = (page - 1) * limit;
+
     const user = await prisma.user.findMany({
-        select: {
+        ...(paginate ? { select: {
             id: true,
             first_name: true,
             last_name: true,
@@ -134,10 +167,14 @@ const getAllUser = asyncHandler(async(req: Request, res: Response) => {
             batchId: true,
             created_at: true,
             updated_at: true
-        }
+        }, skip, take: limit} : {})
+        
     });
 
-    res.status(200).json(new ApiResponse(200, user, "Users fetched Successfully"));
+    const totalUsers = await prisma.user.count();
+    const totalPages = paginate ? Math.ceil(totalUsers / limit) : 1;
+
+    res.status(200).json(new ApiResponse(200, {user, totalPages}, "Users fetched Successfully"));
 })
 
 const getUserById = asyncHandler(async(req: Request, res: Response) => {
@@ -156,4 +193,4 @@ const getUserById = asyncHandler(async(req: Request, res: Response) => {
     res.status(200).json(new ApiResponse(200, user, "User fetched Successfully"));
 })
 
-export { registerUser, loginUser, logoutUser, refreshAccessToken, updatePassword, updateAvatar, deleteUser, getAllUser, getUserById };
+export { registerUser, bulkCreate, loginUser, logoutUser, refreshAccessToken, updatePassword, updateAvatar, deleteUser, getAllUser, getUserById };

@@ -16,7 +16,6 @@ export interface CreateUserInput {
     last_name: string;
     admissionYear: number;
     currentSemester: number;
-    avatar: string;
     batchId: string;
     status: StudentStatus;
 }
