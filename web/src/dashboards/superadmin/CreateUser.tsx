@@ -5,7 +5,7 @@ import { Label } from "../../components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../components/ui/table"
 
-interface Student {
+interface User {
   first_name: string
   last_name: string
   email: string
@@ -18,9 +18,10 @@ interface Student {
   password: string
 }
 
-export default function CreateStudents() {
+export default function CreateUsers() {
   const [file, setFile] = useState<File | null>(null)
-  const [previewData, setPreviewData] = useState<Student[]>([])
+  const [previewData, setPreviewData] = useState<User[]>([])
+  const [skippedUsers, setSkippedUsers] = useState<User[]>([]) // State for skipped users
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState<string | null>(null)
 
@@ -42,7 +43,7 @@ export default function CreateStudents() {
     reader.onload = (e) => {
       const content = e.target?.result as string
       const lines = content.split("\n").map((line) => line.trim()).filter((line) => line.length > 0)
-      const expectedHeaders = ["first_name", "last_name", "email", "role", "departmentId", "admissionYear", "currentSemester", "batchId"];
+      const expectedHeaders = ["first_name", "last_name", "email", "role", "departmentId", "admissionYear", "currentSemester", "batchId", "username", "password"];
       const headers = lines[0].split(",").map((h) => h.trim())
 
       const isValidCSV = expectedHeaders.every(header => headers.includes(header));
@@ -63,49 +64,63 @@ export default function CreateStudents() {
           currentSemester: values[6] ? parseInt(values[6]) : null,
           batchId: values[7] ? parseInt(values[7]) : null,
           username: generateUsername(values[0], values[1]),
-          password: "Student@123"
+          password: values[8] || "Student@123"
         }
       })
 
-      setPreviewData(data.slice(0, 5)) // Preview first 5 rows
+      setPreviewData(data) // Preview first 5 rows
     }
     reader.readAsText(file)
   }
 
   const handleUpload = async () => {
-    if (!file) return
-    setLoading(true)
-    setMessage(null)
+    if (!file) return;
+    setLoading(true);
+    setMessage(null);
+    setSkippedUsers([]); // Reset skipped users state
 
     try {
-      const response = await fetch("/api/v1/users/bulkCreate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ users: previewData })
-      })
+        const response = await fetch("/api/v1/users/bulkCreate", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ users: previewData })
+        });
 
-      const result = await response.json()
-      if (response.ok) {
-        setMessage("Students uploaded successfully!")
-        setPreviewData([])
-        setFile(null)
-      } else {
-        throw new Error(result.message || "Failed to upload students.")
-      }
+        const result = await response.json();
+        console.log("Upload response:", result); // Debugging
+
+        // Handle skipped users even if the response is an error (statusCode 400)
+        if (result.data?.skippedEmails?.length > 0) {
+            console.log("Skipped Emails:", result.data.skippedEmails); // Debugging
+            const skipped = previewData.filter(user => 
+                result.data.skippedEmails.includes(user.email)
+            );
+            setSkippedUsers(skipped);
+            console.log("Skipped Users State:", skipped);
+        }
+
+        if (response.ok) {
+            setMessage(result.message || "Users uploaded successfully.");
+            setPreviewData([]);
+            setFile(null);
+        } else {
+            setMessage(result.message || "Failed to upload students.");
+        }
     } catch (error: any) {
-      setMessage(error.message || "Something went wrong.")
+        setMessage(error.message || "Something went wrong.");
     } finally {
-      setLoading(false)
+        setLoading(false);
     }
-  }
+};
+
 
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold">Create Students</h1>
+      <h1 className="text-3xl font-bold mb-4">Create Users</h1>
 
       <Card>
         <CardHeader>
-          <CardTitle>Upload Student Data</CardTitle>
+          <CardTitle>Upload User Data</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
@@ -139,6 +154,7 @@ export default function CreateStudents() {
                   <TableHead>Semester</TableHead>
                   <TableHead>Batch</TableHead>
                   <TableHead>Username</TableHead>
+                  <TableHead>Password</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -153,6 +169,35 @@ export default function CreateStudents() {
                     <TableCell>{student.currentSemester || "N/A"}</TableCell>
                     <TableCell>{student.batchId || "N/A"}</TableCell>
                     <TableCell>{student.username}</TableCell>
+                    <TableCell>{student.password}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      )}
+
+      {skippedUsers.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Skipped Users (Already Exists)</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>First Name</TableHead>
+                  <TableHead>Last Name</TableHead>
+                  <TableHead>Email</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {skippedUsers.map((user, index) => (
+                  <TableRow key={index}>
+                    <TableCell>{user.first_name}</TableCell>
+                    <TableCell>{user.last_name}</TableCell>
+                    <TableCell className="text-red-500">{user.email}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>

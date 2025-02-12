@@ -91,9 +91,6 @@ export default function Batches() {
       const response = await fetch(`/api/v1/batches/getAllBatch?page=${currentPage}`);
       const data = await response.json();
   
-      console.log("Fetched Batches Data:", data.data.batch);
-      console.log("Current Coordinators Data:", coordinators);
-  
       setBatches(
         data.data.batch.map((batch: Batch) => ({
           ...batch,
@@ -113,6 +110,11 @@ export default function Batches() {
   
 
   const handleSave = async (batch: Batch) => {
+    if (batch.capacity > 50) {
+      alert("Capacity cannot exceed 50.");
+      return;
+    }
+
     try {
       const payload = {
         ...batch,
@@ -142,7 +144,6 @@ export default function Batches() {
   };  
 
   const handleDelete = async (batch: Batch) => {
-    if (!window.confirm(`Are you sure you want to delete batch ${batch.name}?`)) return
     try {
       const response = await fetch(`/api/v1/batches/delete/${batch.id}`, { method: "DELETE" })
       if (response.ok) {
@@ -218,7 +219,14 @@ export default function Batches() {
             type="number"
             className="w-full border rounded p-2"
             value={batch.capacity}
-            onChange={(e) => setBatch({ ...batch, capacity: Number(e.target.value) })}
+            onChange={(e) => {
+              const newCapacity = Number(e.target.value);
+              if (newCapacity <= 50) {
+                setBatch({ ...batch, capacity: newCapacity });
+              } else {
+                alert("Capacity cannot exceed 50.");
+              }
+            }}
           />
         </div>
 
@@ -236,16 +244,19 @@ export default function Batches() {
   }
 
   return (
-    <CRUDPage 
-      title="Batches" 
-      data={batches} 
-      columns={columns} 
-      onSave={handleSave} 
-      onDelete={handleDelete} 
-      renderForm={renderForm} 
-      currentPage={currentPage} 
-      totalPages={totalPages} 
-      onPageChange={handlePageChange} 
-    />
+    <div>
+      <h1 className="text-3xl font-bold mb-4">Batches</h1>
+      <CRUDPage 
+        title="Batches" 
+        data={batches} 
+        columns={columns} 
+        onSave={handleSave} 
+        onDelete={handleDelete} 
+        renderForm={renderForm}
+        currentPage={currentPage} 
+        totalPages={totalPages} 
+        onPageChange={handlePageChange} 
+      />
+    </div>
   )
 }

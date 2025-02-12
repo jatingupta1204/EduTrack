@@ -103,8 +103,6 @@ export default function Notices() {
   }
 
   const handleDelete = async (notice: { id: string }) => {
-    if (!window.confirm(`Are you sure you want to delete notice ${notice.id}?`)) return
-
     try {
       const response = await fetch(`/api/v1/notices/delete/${notice.id}`, {
         method: "DELETE",
@@ -155,16 +153,19 @@ export default function Notices() {
   }
 
   return (
-    <CRUDPage
-      title="Notices"
-      data={notices}
-      columns={columns}
-      onSave={handleSave}
-      onDelete={handleDelete}
-      renderForm={renderForm}
-      currentPage={currentPage}
-      totalPages={totalPages}
-      onPageChange={handlePageChange}
-    />
+    <div>
+      <h1 className="text-3xl font-bold mb-4">Notices</h1>
+      <CRUDPage
+        title="Notices"
+        data={notices}
+        columns={columns}
+        onSave={handleSave}
+        onDelete={handleDelete}
+        renderForm={renderForm}
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={handlePageChange}
+      />
+    </div>
   )
 }

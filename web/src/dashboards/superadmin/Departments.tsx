@@ -92,8 +92,6 @@ export default function Departments() {
   }
 
   const handleDelete = async (department: { id: string }) => {
-    if (!window.confirm(`Are you sure you want to delete department ${department.id}?`)) return
-
     try {
       const response = await fetch(`/api/v1/departments/delete/${department.id}`, {
         method: "DELETE",
@@ -162,16 +160,19 @@ export default function Departments() {
   }
 
   return (
-    <CRUDPage
-      title="Departments"
-      data={departments}
-      columns={columns}
-      onSave={handleSave}
-      onDelete={handleDelete}
-      renderForm={renderForm}
-      currentPage={currentPage}
-      totalPages={totalPages}
-      onPageChange={handlePageChange}
-    />
+    <div>
+      <h1 className="text-3xl font-bold mb-4">Departments</h1>
+      <CRUDPage
+        title="Departments"
+        data={departments}
+        columns={columns}
+        onSave={handleSave}
+        onDelete={handleDelete}
+        renderForm={renderForm}
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={handlePageChange}
+      />
+    </div>
   )
 }

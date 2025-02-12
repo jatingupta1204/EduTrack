@@ -14,7 +14,7 @@ import { AdminLayout } from './layouts/AdminLayout.tsx'
 import SuperAdminHome from './dashboards/superadmin/Home.tsx'
 import Batches from './dashboards/superadmin/Batches.tsx'
 import Courses from './dashboards/superadmin/Courses.tsx'
-import CreateStudents from './dashboards/superadmin/CreateStudent.tsx'
+import CreateUsers from './dashboards/superadmin/CreateUser.tsx'
 import Notices from './dashboards/superadmin/Notices.tsx'
 import Schools from './dashboards/superadmin/Schools.tsx'
 import Departments from './dashboards/superadmin/Departments.tsx'
@@ -42,7 +42,7 @@ const router = createBrowserRouter(
         <Route path='batch' element={<Batches />} />
         <Route path='semester' element={<Semesters />} />
         <Route path='course' element={<Courses />} />
-        <Route path='create-student' element={<CreateStudents />} />
+        <Route path='create-user' element={<CreateUsers />} />
         <Route path='notice' element={<Notices />} />
         <Route path='school' element={<Schools />} />
         <Route path='import-student' element={<ImportStudents />} />

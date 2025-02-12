@@ -31,7 +31,7 @@ const superAdminSidebarItems = [
   { icon: BookOpen, label: 'Courses', href: '/dashboard/superadmin/course' },
   { icon: Bell, label: 'Notices', href: '/dashboard/superadmin/notice' },
   { icon: Users, label: 'Batches', href: '/dashboard/superadmin/batch' },
-  { icon: UserPlus, label: 'Create Students', href: '/dashboard/superadmin/create-student' },
+  { icon: UserPlus, label: 'Create Users', href: '/dashboard/superadmin/create-user' },
   { icon: Settings, label: 'Settings', href: '/dashboard/superadmin/setting' },
 ];
 

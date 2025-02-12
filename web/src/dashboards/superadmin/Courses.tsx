@@ -101,8 +101,6 @@ export default function Courses() {
   }
 
   const handleDelete = async (course: { id: string }) => {
-    if (!window.confirm(`Are you sure you want to delete course ${course.id}?`)) return
-
     try {
       const response = await fetch(`/api/v1/courses/delete/${course.id}`, {
         method: "DELETE",
@@ -221,16 +219,19 @@ export default function Courses() {
   }
 
   return (
-    <CRUDPage
-      title="Courses"
-      data={courses}
-      columns={columns}
-      onSave={handleSave}
-      onDelete={handleDelete}
-      renderForm={renderForm}
-      currentPage={currentPage}
-      totalPages={totalPages}
-      onPageChange={handlePageChange}
-    />
+    <div>
+      <h1 className="text-3xl font-bold mb-4">Courses</h1>
+      <CRUDPage
+        title="Courses"
+        data={courses}
+        columns={columns}
+        onSave={handleSave}
+        onDelete={handleDelete}
+        renderForm={renderForm}
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={handlePageChange}
+      />
+    </div>
   )
 }

@@ -190,8 +190,6 @@ export default function Semesters() {
   }
 
   const handleDelete = async (semester: { id: string }) => {
-    if (!window.confirm(`Are you sure you want to delete ${semester.id}?`)) return
-
     try {
       const response = await fetch(`/api/v1/semesters/delete/${semester.id}`, {
         method: "DELETE",
@@ -252,6 +250,19 @@ export default function Semesters() {
   }
 
   return (
-    <CRUDPage title="Semesters" data={semesters} columns={columns} onSave={handleSave} onDelete={handleDelete} currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} renderForm={renderForm} />
+    <div>
+      <h1 className="text-3xl font-bold mb-4">Semesters</h1>
+      <CRUDPage 
+        title="Semesters" 
+        data={semesters} 
+        columns={columns} 
+        onSave={handleSave} 
+        onDelete={handleDelete} 
+        currentPage={currentPage} 
+        totalPages={totalPages} 
+        onPageChange={setCurrentPage} 
+        renderForm={renderForm} 
+      />
+    </div>
   )
 }

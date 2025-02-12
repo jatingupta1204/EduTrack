@@ -58,8 +58,6 @@ export default function Schools() {
   }
 
   const handleDelete = async (school: { id: string }) => {
-    if (!window.confirm(`Are you sure you want to delete ${school.id}?`)) return
-
     try {
       const response = await fetch(`/api/v1/schools/delete/${school.id}`, {
         method: 'DELETE',
@@ -73,15 +71,18 @@ export default function Schools() {
   }
 
   return (
-    <CRUDPage
-      title="Schools"
-      data={schools}
-      columns={columns}
-      onSave={handleSave}
-      onDelete={handleDelete}
-      currentPage={currentPage}
-      totalPages={totalPages}
-      onPageChange={setCurrentPage}
-    />
+    <div>
+      <h1 className="text-3xl font-bold mb-4">Schools</h1>      
+      <CRUDPage
+        title="Schools"
+        data={schools}
+        columns={columns}
+        onSave={handleSave}
+        onDelete={handleDelete}
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={setCurrentPage}
+      />
+    </div>
   )
 }

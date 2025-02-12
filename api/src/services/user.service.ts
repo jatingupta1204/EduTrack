@@ -96,6 +96,59 @@ const CreateUser = async(input: CreateUserInput) => {
     return createdUser;
 }
 
+const multiUser = async (users: any[]) => {
+    if (!Array.isArray(users) || users.length === 0) {
+        throw new ApiError(400, "Invalid or empty user data");
+    }
+
+    const userEmails = users.map(user => user.email);
+
+    const existingUsers = await prisma.user.findMany({
+        where: {
+            email: { in: userEmails }
+        },
+        select: { email: true }
+    });
+
+    const existingEmails = existingUsers.map(user => user.email);
+
+    const newUsers = users.filter(user => !existingEmails.includes(user.email));
+
+    if (newUsers.length === 0) {
+        return {
+            status: "error",
+            message: "All users already exist in the system.",
+            existingEmails
+        };
+    }
+
+    const formattedUsers = await Promise.all(newUsers.map(async (user) => ({
+        first_name: user.first_name,
+        last_name: user.last_name,
+        email: user.email,
+        username: user.username,
+        password: await hashpassword(user.password),
+        role: user.role || "Student",
+        departmentId: user.departmentId || null,
+        admissionYear: user.admissionYear || null,
+        currentSemester: user.currentSemester || null,
+        batchId: user.batchId || null,
+    })));
+
+    const createdUsers = await prisma.user.createMany({
+        data: formattedUsers,
+        skipDuplicates: true
+    });
+
+    return {
+        status: "success",
+        createdCount: createdUsers.count,
+        skippedEmails: existingEmails,
+        message: `${createdUsers.count} users created successfully, ${existingEmails.length} were skipped (already exist).`
+    };
+};
+
+
 const login = async(input: LoginUser) => {
     const {username, password} = input;
 
@@ -209,4 +262,4 @@ const changeAvatar = async(path: string, userId: string) => {
     });
 }
 
-export { CreateUser, login, refreshedToken, changePassword, changeAvatar }
+export { CreateUser, multiUser, login, refreshedToken, changePassword, changeAvatar }

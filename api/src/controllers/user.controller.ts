@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { changeAvatar, changePassword, CreateUser, login, refreshedToken } from "../services/user.service";
+import { changeAvatar, changePassword, CreateUser, login, multiUser, refreshedToken } from "../services/user.service";
 import { asyncHandler } from "../utils/asyncHandler";
 import { CreateUserInput, LoginUser } from "../types";
 import { ApiError } from "../utils/ApiError";
@@ -21,29 +21,14 @@ const registerUser = asyncHandler(async(req: Request, res: Response) => {
 const bulkCreate = asyncHandler(async (req: Request, res: Response) => {
     const { users } = req.body;
 
-    if (!Array.isArray(users) || users.length === 0) {
-        throw new ApiError(400, "Invalid or empty user data");
+    const bulkUser = await multiUser(users);
+
+    if (bulkUser.status === "error") {
+        res.status(400).json(new ApiResponse(400, { skippedEmails: bulkUser.existingEmails }, bulkUser.message));
+        return;
     }
 
-    const formattedUsers = users.map(user => ({
-        first_name: user.first_name,
-        last_name: user.last_name,
-        email: user.email,
-        username: user.username,
-        password: user.password,
-        role: user.role || "Student",
-        departmentId: user.departmentId || null,
-        admissionYear: user.admissionYear || null,
-        currentSemester: user.currentSemester || null,
-        batchId: user.batchId || null,
-    }));
-
-    const createdUsers = await prisma.user.createMany({
-        data: formattedUsers,
-        skipDuplicates: true
-    });
-
-    res.status(201).json(new ApiResponse(201, createdUsers, "Users created successfully"));
+    res.status(201).json(new ApiResponse(201, { createdCount: bulkUser.createdCount, skippedEmails: bulkUser.skippedEmails }, bulkUser.message));
 });
 
 
