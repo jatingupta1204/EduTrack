@@ -1,140 +1,251 @@
-import { useState } from 'react'
-import { DataTable } from '../../components/DataTable'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "../../components/ui/dialog"
-import { Button } from "../../components/ui/button"
-import { Input } from "../../components/ui/input"
-import { Label } from "../../components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select"
+import { useState, useEffect } from "react"
+import CRUDPage from "./CRUDPage"
 
-const mockBatches = [
-  { id: '1', name: 'CS2023', departmentId: '1', semesterId: '1', capacity: 50, coordinatorId: '1' },
-  { id: '2', name: 'EE2023', departmentId: '2', semesterId: '1', capacity: 40, coordinatorId: '2' },
-  // Add more mock data as needed
-]
+interface Batch {
+  id: string
+  name: string
+  departmentId: string
+  semesterId: string
+  capacity: number
+  coordinatorId: string
+}
+
+interface Department {
+  id: string
+  name: string
+}
+
+interface Semester {
+  id: string
+  name: string
+}
+
+interface Coordinator {
+  id: string
+  name: string
+}
 
 const columns = [
-  { key: 'name' as const, header: 'Name' },
-  { key: 'departmentId' as const, header: 'Department' },
-  { key: 'semesterId' as const, header: 'Semester' },
-  { key: 'capacity' as const, header: 'Capacity' },
-  { key: 'coordinatorId' as const, header: 'Coordinator' },
+  { key: "name" as const, header: "Name" },
+  { key: "departmentId" as const, header: "Department" },
+  { key: "semesterId" as const, header: "Semester" },
+  { key: "capacity" as const, header: "Capacity" },
+  { key: "coordinatorId" as const, header: "Coordinator" },
 ]
 
 export default function Batches() {
-  const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const [currentBatch, setCurrentBatch] = useState<Partial<typeof mockBatches[0]>>({})
+  const [batches, setBatches] = useState<Batch[]>([])
+  const [departments, setDepartments] = useState<Department[]>([])
+  const [semesters, setSemesters] = useState<Semester[]>([])
+  const [coordinators, setCoordinators] = useState<Coordinator[]>([])
+  const [currentPage, setCurrentPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
+  const [dataLoaded, setDataLoaded] = useState(false)
 
-  const handleCreate = () => {
-    setCurrentBatch({})
-    setIsDialogOpen(true)
-  }
+  useEffect(() => {
+    fetchMetadata()
+  }, [])
 
-  const handleEdit = (batch: typeof mockBatches[0]) => {
-    setCurrentBatch(batch)
-    setIsDialogOpen(true)
-  }
+  useEffect(() => {
+    if (dataLoaded) {
+      fetchBatches()
+    }
+  }, [currentPage, dataLoaded])
 
-  const handleSave = () => {
-    console.log('Save batch:', currentBatch)
-    // Implement the actual save logic here
-    setIsDialogOpen(false)
-  }
+  const fetchMetadata = async () => {
+    try {
+      const [deptRes, semRes, coordRes] = await Promise.all([
+        fetch("/api/v1/departments/getAllDepartment?paginate=false"),
+        fetch("/api/v1/semesters/getAllSemester?paginate=false"),
+        fetch("/api/v1/users/getAllUser?paginate=false"),
+      ])
+      const [deptData, semData, coordData] = await Promise.all([
+        deptRes.json(),
+        semRes.json(),
+        coordRes.json(),
+      ])
 
-  const handleDelete = (batch: typeof mockBatches[0]) => {
-    if (window.confirm('Are you sure you want to delete this batch?')) {
-      console.log('Delete batch:', batch)
-      // Implement the actual delete logic here
+      setDepartments(deptData.data?.department)
+      setSemesters(
+        semData.data?.semester?.map((sem: { id: string; number: number }) => ({
+          id: sem.id,
+          name: `${sem.number}`, // Converting number to string for dropdown compatibility
+        })) || []
+      );
+      setCoordinators(
+        coordData.data?.user
+        ?.filter((user: { role: string }) => user.role === "Admin")
+        .map((user: { id: string; first_name: string; last_name: string }) => ({
+        id: user.id,
+        name: `${user.first_name} ${user.last_name}`,
+      })) || []
+    );
+      setDataLoaded(true)
+    } catch (error) {
+      console.error("Error fetching metadata:", error)
     }
   }
 
+  const fetchBatches = async () => {
+    try {
+      const response = await fetch(`/api/v1/batches/getAllBatch?page=${currentPage}`);
+      const data = await response.json();
+  
+      console.log("Fetched Batches Data:", data.data.batch);
+      console.log("Current Coordinators Data:", coordinators);
+  
+      setBatches(
+        data.data.batch.map((batch: Batch) => ({
+          ...batch,
+          departmentId: departments.find((d) => d.id === batch.departmentId)?.name || "Unknown",
+          semesterId: semesters.find((s) => s.id === batch.semesterId)?.name || "Unknown",
+          coordinatorId: coordinators.find((c) => c.id === batch.coordinatorId)
+            ? `${coordinators.find((c) => c.id === batch.coordinatorId)?.name}`
+            : "Unknown",
+        }))
+      );
+      setTotalPages(data.data.totalPages);
+    } catch (error) {
+      console.error("Error fetching batches:", error);
+    }
+  };
+  
+  
+
+  const handleSave = async (batch: Batch) => {
+    try {
+      const payload = {
+        ...batch,
+        departmentId: departments.find((d) => d.name === batch.departmentId)?.id || "",
+        semesterId: semesters.find((s) => s.name === batch.semesterId)?.id || "",
+        coordinatorId: coordinators.find((c) => c.name === batch.coordinatorId)?.id || "", // Convert name back to ID
+      };
+  
+      const response = batch.id
+        ? await fetch(`/api/v1/batches/update/${batch.id}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          })
+        : await fetch("/api/v1/batches/create", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+  
+      if (response.ok) {
+        fetchBatches();
+      }
+    } catch (error) {
+      console.error("Error saving batch:", error);
+    }
+  };  
+
+  const handleDelete = async (batch: Batch) => {
+    if (!window.confirm(`Are you sure you want to delete batch ${batch.name}?`)) return
+    try {
+      const response = await fetch(`/api/v1/batches/delete/${batch.id}`, { method: "DELETE" })
+      if (response.ok) {
+        fetchBatches()
+      }
+    } catch (error) {
+      console.error("Error deleting batch:", error)
+    }
+  }
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page)
+  }
+
+  const Dropdown = ({
+    value,
+    onChange,
+    options,
+    label,
+  }: {
+    value: string;
+    onChange: (val: string) => void;
+    options: { id: string; name: string }[];
+    label: string;
+  }) => (
+    <select className="w-full border rounded p-2" value={value} onChange={(e) => onChange(e.target.value)}>
+      <option value="">{`Select ${label}`}</option>
+      {options.map((option) => (
+        <option key={option.id} value={option.id}>
+          {option.name} {/* Displays full name but stores ID */}
+        </option>
+      ))}
+    </select>
+  );
+  
+
+  const renderForm = (batch: Batch, setBatch: (item: Batch) => void) => {
+    return (
+      <div className="space-y-4 max-h-96 overflow-y-auto p-2">
+        <div>
+          <label className="block text-sm font-medium">Name</label>
+          <input
+            type="text"
+            className="w-full border rounded p-2"
+            value={batch.name}
+            onChange={(e) => setBatch({ ...batch, name: e.target.value })}
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium">Department</label>
+          <Dropdown
+            value={batch.departmentId}
+            onChange={(id) => setBatch({ ...batch, departmentId: id })}
+            options={departments}
+            label="Department"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium">Semester</label>
+          <Dropdown
+            value={batch.semesterId}
+            onChange={(id) => setBatch({ ...batch, semesterId: id })}
+            options={semesters}
+            label="Semester"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium">Capacity</label>
+          <input
+            type="number"
+            className="w-full border rounded p-2"
+            value={batch.capacity}
+            onChange={(e) => setBatch({ ...batch, capacity: Number(e.target.value) })}
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium">Coordinator</label>
+          <Dropdown
+            value={batch.coordinatorId}
+            onChange={(id) => setBatch({ ...batch, coordinatorId: id })}
+            options={coordinators}
+            label="Coordinator"
+          />
+        </div>
+      </div>
+    )
+  }
+
   return (
-    <div className="space-y-6">
-      <h1 className="text-3xl font-bold">Batches</h1>
-      <DataTable
-        data={mockBatches}
-        columns={columns}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
-        onCreate={handleCreate}
-      />
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{currentBatch.id ? 'Edit Batch' : 'Create Batch'}</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="name">Name</Label>
-              <Input
-                id="name"
-                value={currentBatch.name || ''}
-                onChange={(e) => setCurrentBatch({ ...currentBatch, name: e.target.value })}
-              />
-            </div>
-            <div>
-              <Label htmlFor="department">Department</Label>
-              <Select
-                value={currentBatch.departmentId}
-                onValueChange={(value) => setCurrentBatch({ ...currentBatch, departmentId: value })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select department" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="1">Computer Science</SelectItem>
-                  <SelectItem value="2">Electrical Engineering</SelectItem>
-                  {/* Add more departments as needed */}
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label htmlFor="semester">Semester</Label>
-              <Select
-                value={currentBatch.semesterId}
-                onValueChange={(value) => setCurrentBatch({ ...currentBatch, semesterId: value })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select semester" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="1">Fall 2023</SelectItem>
-                  <SelectItem value="2">Spring 2024</SelectItem>
-                  {/* Add more semesters as needed */}
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label htmlFor="capacity">Capacity</Label>
-              <Input
-                id="capacity"
-                type="number"
-                value={currentBatch.capacity || ''}
-                onChange={(e) => setCurrentBatch({ ...currentBatch, capacity: parseInt(e.target.value) })}
-              />
-            </div>
-            <div>
-              <Label htmlFor="coordinator">Coordinator</Label>
-              <Select
-                value={currentBatch.coordinatorId}
-                onValueChange={(value) => setCurrentBatch({ ...currentBatch, coordinatorId: value })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select coordinator" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="1">John Doe</SelectItem>
-                  <SelectItem value="2">Jane Smith</SelectItem>
-                  {/* Add more coordinators as needed */}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsDialogOpen(false)}>Cancel</Button>
-            <Button onClick={handleSave}>Save</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </div>
+    <CRUDPage 
+      title="Batches" 
+      data={batches} 
+      columns={columns} 
+      onSave={handleSave} 
+      onDelete={handleDelete} 
+      renderForm={renderForm} 
+      currentPage={currentPage} 
+      totalPages={totalPages} 
+      onPageChange={handlePageChange} 
+    />
   )
 }

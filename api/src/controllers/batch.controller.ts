@@ -42,9 +42,19 @@ const updateBatch = asyncHandler(async(req: Request, res: Response) => {
 })
 
 const getAllBatch = asyncHandler(async(req: Request, res: Response) => {
-    const batch = await prisma.batch.findMany({});
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 5;
+    const paginate = req.query.paginate === "false" ? false : true;
+    const skip = (page - 1) * limit;
 
-    res.status(200).json(new ApiResponse(200, batch, "Batch Fetched Successfully"));
+    const batch = await prisma.batch.findMany({
+        ...(paginate ? { skip, take: limit } : {})
+    });
+
+    const totalBatch = await prisma.batch.count();
+    const totalPages = paginate ? Math.ceil(totalBatch / limit) : 1;
+
+    res.status(200).json(new ApiResponse(200, {batch, totalPages}, "Batch Fetched Successfully"));
 })
 
 const getBatchById = asyncHandler(async(req: Request, res: Response) => {

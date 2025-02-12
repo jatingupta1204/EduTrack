@@ -24,6 +24,16 @@ interface CRUDPageProps<T extends BaseItem> {
   renderForm?: (item: T, setItem: (item: T) => void) => JSX.Element
 }
 
+const singularTitles: Record<string, string> = {
+  Batches: "Batch",
+  Courses: "Course",
+  Departments: "Department",
+  Notices: "Notice",
+  Schools: "School",
+  Semesters: "Semester",
+  Students: "Student",
+};
+
 export default function CRUDPage<T extends BaseItem>({ 
   title, 
   data, 
@@ -71,7 +81,7 @@ export default function CRUDPage<T extends BaseItem>({
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{currentItem.id ? `Edit ${title.slice(0, -1)}` : `Create ${title.slice(0, -1)}`}</DialogTitle>
+            <DialogTitle>{currentItem.id ? `Edit ${singularTitles[title] || title}` : `Create ${singularTitles[title] || title}`}</DialogTitle>
           </DialogHeader>
 
           {/* Custom Form (if provided) */}
