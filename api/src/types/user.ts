@@ -20,6 +20,19 @@ export interface CreateUserInput {
     status: StudentStatus;
 }
 
+export interface changeUserInfo {
+    username: string;
+    email: string;
+    password: string;
+    role: string;
+    departmentId: string;
+    first_name: string;
+    last_name: string;
+    currentSemester: number;
+    batchId: string;
+    status: StudentStatus;
+}
+
 export interface LoginUser{
     username: string;
     password: string;

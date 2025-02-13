@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
-import { changeAvatar, changePassword, CreateUser, login, multiUser, refreshedToken } from "../services/user.service";
+import { changeAvatar, changePassword, changeUser, CreateUser, login, multiUser, refreshedToken } from "../services/user.service";
 import { asyncHandler } from "../utils/asyncHandler";
-import { CreateUserInput, LoginUser } from "../types";
+import { changeUserInfo, CreateUserInput, LoginUser } from "../types";
 import { ApiError } from "../utils/ApiError";
 import { ApiResponse } from "../utils/ApiResponse";
 import { prisma } from "..";
@@ -31,6 +31,16 @@ const bulkCreate = asyncHandler(async (req: Request, res: Response) => {
     res.status(201).json(new ApiResponse(201, { createdCount: bulkUser.createdCount, skippedEmails: bulkUser.skippedEmails }, bulkUser.message));
 });
 
+const updateUser = asyncHandler(async(req: Request, res: Response) => {
+    const { id } = req.params;
+    const input: changeUserInfo = req.body;
+
+    const user = await changeUser(id, input);
+
+    const { ...updatedUser } = user;
+
+    res.status(200).json(new ApiResponse(200, updatedUser, "User Updated Successfully"));
+})
 
 const loginUser = asyncHandler(async(req: Request, res: Response) => {
     const input : LoginUser = req.body;
@@ -178,4 +188,4 @@ const getUserById = asyncHandler(async(req: Request, res: Response) => {
     res.status(200).json(new ApiResponse(200, user, "User fetched Successfully"));
 })
 
-export { registerUser, bulkCreate, loginUser, logoutUser, refreshAccessToken, updatePassword, updateAvatar, deleteUser, getAllUser, getUserById };
+export { registerUser, bulkCreate, updateUser, loginUser, logoutUser, refreshAccessToken, updatePassword, updateAvatar, deleteUser, getAllUser, getUserById };

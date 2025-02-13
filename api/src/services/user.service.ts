@@ -1,6 +1,6 @@
 import { prisma } from "..";
 import fs from "fs";
-import { CreateUserInput, JWTUserPayload, LoginUser } from "../types";
+import { changeUserInfo, CreateUserInput, JWTUserPayload, LoginUser } from "../types";
 import { ApiError } from "../utils/ApiError";
 import { deleteFromCloudinary, uploadOnCloudinary } from "../utils/cloudinary";
 import { hashpassword, verifyPassword } from "../utils/password";
@@ -148,6 +148,32 @@ const multiUser = async (users: any[]) => {
     };
 };
 
+const changeUser = async(id: string, input: changeUserInfo) => {
+    const { ...data }  = input;
+
+    const existingUser = await prisma.user.findUnique({
+        where: {
+            id: id
+        }
+    })
+
+    if(!existingUser){
+        throw new ApiError(401, "User Not Found");
+    }
+
+    const filteredData = Object.fromEntries(
+        Object.entries(data).filter(([_, value]) => value !== undefined && value !== null)
+    );
+
+    const updatedUser = await prisma.user.update({
+        where: {
+            id: id
+        },
+        data: filteredData
+    });
+
+    return updatedUser;
+}
 
 const login = async(input: LoginUser) => {
     const {username, password} = input;
@@ -262,4 +288,4 @@ const changeAvatar = async(path: string, userId: string) => {
     });
 }
 
-export { CreateUser, multiUser, login, refreshedToken, changePassword, changeAvatar }
+export { CreateUser, multiUser, login, refreshedToken, changePassword, changeAvatar, changeUser }

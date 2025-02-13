@@ -21,6 +21,8 @@ import Departments from './dashboards/superadmin/Departments.tsx'
 import { SuperAdminLayout } from './layouts/SuperAdminLayout.tsx'
 import ImportStudents from './dashboards/superadmin/ImportStudent.tsx'
 import Semesters from './dashboards/superadmin/Semesters.tsx'
+import ManageStudents from './dashboards/superadmin/ManageStudent.tsx'
+import ManageAdmins from './dashboards/superadmin/ManageAdmin.tsx'
 // import CRUDPage from './dashboards/superadmin/CRUDPage.tsx'
 
 const router = createBrowserRouter(
@@ -43,6 +45,8 @@ const router = createBrowserRouter(
         <Route path='semester' element={<Semesters />} />
         <Route path='course' element={<Courses />} />
         <Route path='create-user' element={<CreateUsers />} />
+        <Route path='manage-student' element={<ManageStudents />} />
+        <Route path='manage-admin' element={<ManageAdmins />} />
         <Route path='notice' element={<Notices />} />
         <Route path='school' element={<Schools />} />
         <Route path='import-student' element={<ImportStudents />} />

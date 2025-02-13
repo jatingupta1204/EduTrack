@@ -32,6 +32,8 @@ const superAdminSidebarItems = [
   { icon: Bell, label: 'Notices', href: '/dashboard/superadmin/notice' },
   { icon: Users, label: 'Batches', href: '/dashboard/superadmin/batch' },
   { icon: UserPlus, label: 'Create Users', href: '/dashboard/superadmin/create-user' },
+  { icon: Users, label: 'Manage Students', href: '/dashboard/superadmin/manage-student' },
+  { icon: User, label: 'Manage Admins', href: '/dashboard/superadmin/manage-admin' },
   { icon: Settings, label: 'Settings', href: '/dashboard/superadmin/setting' },
 ];
 

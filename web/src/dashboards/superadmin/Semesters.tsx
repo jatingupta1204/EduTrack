@@ -62,7 +62,7 @@ const StatusDropdown = ({ value, onChange }: { value: string; onChange: (status:
 )
 
 // **Year Picker using React-Calendar**
-const YearPicker = ({ value, onChange }: { value: number; onChange: (year: number) => void }) => {
+const YearPicker = ({ value, onChange }: { value: number | null; onChange: (year: number) => void }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
