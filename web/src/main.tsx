@@ -8,7 +8,6 @@ import StudentHome from './dashboards/student/Home.tsx'
 import Attendance from './dashboards/student/Attendance.tsx'
 import Grades from './dashboards/student/Grades.tsx'
 import SemesterRegistration from './dashboards/student/SemesterRegistration.tsx'
-import Settings from './dashboards/student/Settings.tsx'
 import AdminHome from './dashboards/admin/Home.tsx'
 import { AdminLayout } from './layouts/AdminLayout.tsx'
 import SuperAdminHome from './dashboards/superadmin/Home.tsx'
@@ -23,7 +22,7 @@ import ImportStudents from './dashboards/superadmin/ImportStudent.tsx'
 import Semesters from './dashboards/superadmin/Semesters.tsx'
 import ManageStudents from './dashboards/superadmin/ManageStudent.tsx'
 import ManageAdmins from './dashboards/superadmin/ManageAdmin.tsx'
-// import CRUDPage from './dashboards/superadmin/CRUDPage.tsx'
+import SettingsPage from './pages/Settings.tsx'
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -34,7 +33,7 @@ const router = createBrowserRouter(
         <Route path='attendance' element={<Attendance />} />
         <Route path='grades' element={<Grades />} />
         <Route path='semester-registration' element={<SemesterRegistration />} />
-        <Route path='settings' element={<Settings />} />
+        <Route path='settings' element={<SettingsPage />} />
       </Route>
       <Route path='/dashboard/admin' element={<AdminLayout />}>
         <Route index element={<AdminHome />} />
@@ -51,6 +50,7 @@ const router = createBrowserRouter(
         <Route path='school' element={<Schools />} />
         <Route path='import-student' element={<ImportStudents />} />
         <Route path='department' element={<Departments />} />
+        <Route path='settings' element= {<SettingsPage />} />
       </Route>
     </>
   )

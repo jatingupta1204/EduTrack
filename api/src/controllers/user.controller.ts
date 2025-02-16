@@ -98,14 +98,14 @@ const refreshAccessToken = asyncHandler(async(req: Request, res: Response) => {
 })
 
 const updatePassword = asyncHandler(async(req: Request, res: Response) => {
-    const {oldPassword, newPassword} = req.body;
+    const {currentPassword, newPassword} = req.body;
     const userId = req.user?.id;
 
     if(!userId){
         throw new ApiError(401, "Unauthorized Request");
     }
 
-    await changePassword(oldPassword, newPassword, userId);
+    await changePassword(currentPassword, newPassword, userId);
 
     res.status(200).json(new ApiResponse(200, {}, "Password Changed Successfully"));
 })
@@ -123,9 +123,9 @@ const updateAvatar = asyncHandler(async(req: Request, res: Response) => {
         throw new ApiError(401, "Unauthorized Request");
     }
 
-    await changeAvatar(avatarLocalPath, userId);
+    const updatedUser = await changeAvatar(avatarLocalPath, userId);
 
-    res.status(200).json(new ApiResponse(200, {}, "Avatar Updated Successfully"));
+    res.status(200).json(new ApiResponse(200, { avatar: updatedUser.avatar }, "Avatar Updated Successfully"));
 })
 
 const deleteUser = asyncHandler(async(req: Request, res: Response) => {
@@ -173,11 +173,11 @@ const getAllUser = asyncHandler(async(req: Request, res: Response) => {
 })
 
 const getUserById = asyncHandler(async(req: Request, res: Response) => {
-    const {id} = req.params;
+    const userId = req.user?.id;
 
     const user = await prisma.user.findUnique({
         where: {
-            id: id
+            id: userId
         }
     });
 

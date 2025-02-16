@@ -1,9 +1,32 @@
-import { Link, useNavigate } from 'react-router-dom'
-import { Button } from "./ui/button"
-import { ScrollArea } from "./ui/scroll-area"
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar"
-import { Home, ClipboardCheck, GraduationCap, Calendar, Settings, LogOut, Briefcase, BookOpen, Bell, Users, UserPlus, User, LayoutDashboard, Building2, Clock, Columns, BookA, Megaphone, UsersRound, ShieldCheck, Settings2  } from 'lucide-react'
-import { handleError } from '@/utils/errorAndSuccess'
+import { Link, useNavigate } from 'react-router-dom';
+import { Button } from "./ui/button";
+import { ScrollArea } from "./ui/scroll-area";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import {
+  Home,
+  ClipboardCheck,
+  GraduationCap,
+  Calendar,
+  Settings,
+  LogOut,
+  Briefcase,
+  BookOpen,
+  Bell,
+  Users,
+  UserPlus,
+  User,
+  LayoutDashboard,
+  Building2,
+  Clock,
+  Columns,
+  BookA,
+  Megaphone,
+  UsersRound,
+  ShieldCheck,
+  Settings2
+} from 'lucide-react';
+import { handleError } from '@/utils/errorAndSuccess';
+import { useState, useEffect } from 'react';
 
 const studentSidebarItems = [
   { icon: Home, label: 'Home', href: '/dashboard' },
@@ -34,7 +57,7 @@ const superAdminSidebarItems = [
   { icon: UserPlus, label: 'Create Users', href: '/dashboard/superadmin/create-user' },
   { icon: GraduationCap, label: 'Manage Students', href: '/dashboard/superadmin/manage-student' },
   { icon: ShieldCheck, label: 'Manage Admins', href: '/dashboard/superadmin/manage-admin' },
-  { icon: Settings2, label: 'Settings', href: '/dashboard/superadmin/setting' },
+  { icon: Settings2, label: 'Settings', href: '/dashboard/superadmin/settings' },
 ];
 
 interface SidebarProps {
@@ -43,10 +66,99 @@ interface SidebarProps {
   role: 'student' | 'admin' | 'superadmin';
 }
 
+interface User {
+  id: string;
+  username: string;
+  email: string;
+  first_name?: string;
+  last_name?: string;
+  role?: string;
+  avatar?: string;
+  departmentId?: string; // stored as ID
+  currentSemester?: number;
+  batchId?: string; // stored as ID
+}
+
+interface Department {
+  id: string;
+  name: string;
+}
+
+interface Batch {
+  id: string;
+  name: string;
+}
+
 export function Sidebar({ open, setOpen, role }: SidebarProps) {
   const navigate = useNavigate();
+  const [user, setUser] = useState<User | null>(null);
+  const [departments, setDepartments] = useState<Department[]>([]);
+  const [batches, setBatches] = useState<Batch[]>([]);
+
+  useEffect(() => {
+    fetchMetadata();
+    fetchUserProfile();
+  }, []);
+
+  const fetchMetadata = async () => {
+    try {
+      const deptRes = await fetch("/api/v1/departments/getAllDepartment?paginate=false");
+      const batchRes = await fetch("/api/v1/batches/getAllBatch?paginate=false");
+      const deptData = await deptRes.json();
+      const batchData = await batchRes.json();
+      setDepartments(deptData.data?.department || []);
+      setBatches(batchData.data?.batch || []);
+    } catch (error) {
+      console.error("Error fetching metadata:", error);
+    }
+  };
+
+  const fetchUserProfile = async () => {
+    try {
+      const response = await fetch(`/api/v1/users/getSingleUser`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+      console.log("Response status:", response.status);
+      const data = await response.json();
+      console.log("Response data:", data);
+      if (!response.ok) {
+        throw new Error("Failed to fetch user data");
+      }
+      setUser(data.data);
+    } catch (error) {
+      console.error("Error fetching profile:", error);
+    }
+  };
   
-  // Select sidebar items based on role
+
+  const logout = async () => {
+    try {
+      const url = '/api/v1/users/logout';
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json'
+        },
+      });
+      if (response.ok) {
+        navigate('/', { replace: true });
+      } else {
+        return handleError("Failed to Logout");
+      }
+    } catch (error) {
+      return handleError("Failed to Logout");
+    }
+  };
+
+  // Convert stored IDs into display names using fetched metadata
+  const departmentName = departments.find(d => d.id === user?.departmentId)?.name || "Unknown";
+  const batchName = batches.find(b => b.id === user?.batchId)?.name || "Unknown";
+  const semesterNumber = user?.currentSemester ? user.currentSemester.toString() : "Unknown";
+
   let sidebarItems;
   switch (role) {
     case 'admin':
@@ -59,42 +171,40 @@ export function Sidebar({ open, setOpen, role }: SidebarProps) {
       sidebarItems = studentSidebarItems;
   }
 
-  const logout = async () => {
-    try {
-      const url = '/api/v1/users/logout';
-      const response = await fetch(url, {
-        method: "POST",
-        headers: {
-          'Content-Type': 'application/json'  
-        },
-      });
-      if(response.ok){
-        navigate('/', { replace: true });
-      } else {
-        return handleError("Failed to Logout");
-      }
-    } catch (error) {
-      return handleError("Failed to Logout");
-    }
-  }
-
   return (
-    <div className={`fixed inset-y-0 left-0 z-50 w-64 transition-transform duration-300 ease-in-out ${
-      open ? "translate-x-0" : "-translate-x-full"
-    } md:relative md:translate-x-0`}
-    style={{ backgroundColor: 'hsl(var(--background))', borderRight: '1px solid hsl(var(--border))' }}>
-      <div className="flex flex-col items-center justify-center p-6" style={{ borderBottom: '1px solid hsl(var(--border))' }}>
+    <div
+      className={`fixed inset-y-0 left-0 z-50 w-64 transition-transform duration-300 ease-in-out ${
+        open ? "translate-x-0" : "-translate-x-full"
+      } md:relative md:translate-x-0`}
+      style={{ backgroundColor: 'hsl(var(--background))', borderRight: '1px solid hsl(var(--border))' }}
+    >
+      <div
+        className="flex flex-col items-center justify-center p-6"
+        style={{ borderBottom: '1px solid hsl(var(--border))' }}
+      >
         <Button variant="ghost" size="icon" className="absolute top-4 right-4 md:hidden" onClick={() => setOpen(false)}>
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
           </svg>
         </Button>
         <Avatar className="w-24 h-24 mb-4">
-          <AvatarImage src="/placeholder.svg?height=96&width=96" alt="User Avatar" />
-          <AvatarFallback>JD</AvatarFallback>
+          <AvatarImage src={user?.avatar || ""} alt="User Avatar" />
+          <AvatarFallback>
+            {user?.avatar ? user.username[0] : <User className="w-6 h-6" />}
+          </AvatarFallback>
         </Avatar>
-        <h2 className="text-xl font-semibold mb-1">John Doe</h2>
-        <p className="text-sm mb-1" style={{ color: 'hsl(var(--muted-foreground))' }}>Role: {role.charAt(0).toUpperCase() + role.slice(1)}</p>
+        <h2 className="text-xl font-semibold mb-1">
+          {user ? `${user.first_name || user.username} ${user.last_name || ""}` : "Loading..."}
+        </h2>
+        <p className="text-sm mb-1" style={{ color: 'hsl(var(--muted-foreground))' }}>
+            {departmentName}
+        </p>
+        <p className="text-sm mb-1" style={{ color: 'hsl(var(--muted-foreground))' }}>
+          Semester: {semesterNumber}
+        </p>
+        <p className="text-sm mb-1" style={{ color: 'hsl(var(--muted-foreground))' }}>
+          Batch: {batchName}
+        </p>
       </div>
       <ScrollArea className="flex-grow">
         <nav className="p-4 space-y-2">
@@ -109,11 +219,11 @@ export function Sidebar({ open, setOpen, role }: SidebarProps) {
         </nav>
       </ScrollArea>
       <div className="p-4" style={{ borderTop: '1px solid hsl(var(--border))' }}>
-        <Button variant="ghost" className="w-full justify-start" style={{ color: 'hsl(var(--destructive))'}} onClick={logout}>
+        <Button variant="ghost" className="w-full justify-start" style={{ color: 'hsl(var(--destructive))' }} onClick={logout}>
           <LogOut className="mr-2 h-4 w-4" />
           Logout
         </Button>
       </div>
     </div>
-  )
+  );
 }

@@ -229,7 +229,7 @@ const refreshedToken = async(incomingRefreshToken: string) => {
     return {accessToken, refreshToken};
 }
 
-const changePassword = async(oldPassword: string, newPassword:string, userId: string) => {
+const changePassword = async(currentPassword: string, newPassword:string, userId: string) => {
     const user = await prisma.user.findUnique({
         where: {
             id: userId
@@ -240,7 +240,7 @@ const changePassword = async(oldPassword: string, newPassword:string, userId: st
         throw new ApiError(401, "Unauthorized Request");
     }
 
-    const validatePassword = await verifyPassword(user.password, oldPassword);
+    const validatePassword = await verifyPassword(user.password, currentPassword);
 
     if(!validatePassword){
         throw new ApiError(401, "Invalid old password");
@@ -282,7 +282,7 @@ const changeAvatar = async(path: string, userId: string) => {
         throw new ApiError(400, "Error while uploading avatar on cloudinary");
     }
 
-    await prisma.user.update({
+    const updatedUser = await prisma.user.update({
         where: {
             id: userId
         },
@@ -290,6 +290,8 @@ const changeAvatar = async(path: string, userId: string) => {
             avatar: avatar.url
         }
     });
+
+    return updatedUser;
 }
 
 export { CreateUser, multiUser, login, refreshedToken, changePassword, changeAvatar, changeUser }
