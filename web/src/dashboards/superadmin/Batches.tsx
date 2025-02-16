@@ -94,35 +94,37 @@ export default function Batches() {
       setBatches(
         data.data.batch.map((batch: Batch) => ({
           ...batch,
-          departmentId: departments.find((d) => d.id === batch.departmentId)?.name || "Unknown",
-          semesterId: semesters.find((s) => s.id === batch.semesterId)?.name || "Unknown",
-          coordinatorId: coordinators.find((c) => c.id === batch.coordinatorId)
-            ? `${coordinators.find((c) => c.id === batch.coordinatorId)?.name}`
-            : "Unknown",
+          departmentId: departments.find((d) => d.id === batch.departmentId)?.name || batch.departmentId,
+          semesterId: semesters.find((s) => s.id === batch.semesterId)?.name || batch.semesterId,
+          coordinatorId: coordinators.find((c) => c.id === batch.coordinatorId)?.name || batch.coordinatorId,
         }))
       );
       setTotalPages(data.data.totalPages);
     } catch (error) {
       console.error("Error fetching batches:", error);
     }
-  };
-  
-  
+  };  
 
   const handleSave = async (batch: Batch) => {
     if (batch.capacity > 50) {
       alert("Capacity cannot exceed 50.");
       return;
     }
-
-    try {
-      const payload = {
-        ...batch,
-        departmentId: departments.find((d) => d.name === batch.departmentId)?.id || "",
-        semesterId: semesters.find((s) => s.name === batch.semesterId)?.id || "",
-        coordinatorId: coordinators.find((c) => c.name === batch.coordinatorId)?.id || "", // Convert name back to ID
-      };
   
+    const department = departments.find((d) => d.name === batch.departmentId);
+    const semester = semesters.find((s) => s.name === batch.semesterId);
+    const coordinator = coordinators.find((c) => c.name === batch.coordinatorId);
+  
+    const payload = {
+      id: batch.id, // Avoid sending undefined for new batch
+      name: batch.name,
+      departmentId: department?.id || batch.departmentId, // Convert name to ID
+      semesterId: semester?.id || batch.semesterId, // Convert name to ID
+      capacity: batch.capacity,
+      coordinatorId: coordinator?.id || batch.coordinatorId, // Convert name to ID
+    };
+  
+    try {
       const response = batch.id
         ? await fetch(`/api/v1/batches/update/${batch.id}`, {
             method: "PUT",
@@ -137,11 +139,13 @@ export default function Batches() {
   
       if (response.ok) {
         fetchBatches();
+      } else {
+        console.error("Error saving batch:", await response.text());
       }
     } catch (error) {
       console.error("Error saving batch:", error);
     }
-  };  
+  };
 
   const handleDelete = async (batch: Batch) => {
     try {
@@ -169,7 +173,11 @@ export default function Batches() {
     options: { id: string; name: string }[];
     label: string;
   }) => (
-    <select className="w-full border rounded p-2" value={value} onChange={(e) => onChange(e.target.value)}>
+    <select
+      className="w-full border rounded p-2"
+      value={value}
+      onChange={(e) => onChange(e.target.value)} // Ensures ID is sent
+    >
       <option value="">{`Select ${label}`}</option>
       {options.map((option) => (
         <option key={option.id} value={option.id}>

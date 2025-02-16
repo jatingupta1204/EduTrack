@@ -2,7 +2,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { Button } from "./ui/button"
 import { ScrollArea } from "./ui/scroll-area"
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar"
-import { Home, ClipboardCheck, GraduationCap, Calendar, Settings, LogOut, School, Briefcase, BookOpen, Bell, Users, UserPlus, User } from 'lucide-react'
+import { Home, ClipboardCheck, GraduationCap, Calendar, Settings, LogOut, Briefcase, BookOpen, Bell, Users, UserPlus, User, LayoutDashboard, Building2, Clock, Columns, BookA, Megaphone, UsersRound, ShieldCheck, Settings2  } from 'lucide-react'
 import { handleError } from '@/utils/errorAndSuccess'
 
 const studentSidebarItems = [
@@ -24,17 +24,17 @@ const adminSidebarItems = [
 ];
 
 const superAdminSidebarItems = [
-  { icon: Home, label: 'Home', href: '/dashboard/superadmin' },
-  { icon: School, label: 'Schools', href: '/dashboard/superadmin/school' },
-  { icon: Calendar, label: 'Semesters', href: '/dashboard/superadmin/semester' },
-  { icon: Briefcase, label: 'Departments', href: '/dashboard/superadmin/department' },
-  { icon: BookOpen, label: 'Courses', href: '/dashboard/superadmin/course' },
-  { icon: Bell, label: 'Notices', href: '/dashboard/superadmin/notice' },
-  { icon: Users, label: 'Batches', href: '/dashboard/superadmin/batch' },
+  { icon: LayoutDashboard, label: 'Home', href: '/dashboard/superadmin' },
+  { icon: Building2, label: 'Schools', href: '/dashboard/superadmin/school' },
+  { icon: Clock, label: 'Semesters', href: '/dashboard/superadmin/semester' },
+  { icon: Columns, label: 'Departments', href: '/dashboard/superadmin/department' },
+  { icon: BookA, label: 'Courses', href: '/dashboard/superadmin/course' },
+  { icon: Megaphone, label: 'Notices', href: '/dashboard/superadmin/notice' },
+  { icon: UsersRound, label: 'Batches', href: '/dashboard/superadmin/batch' },
   { icon: UserPlus, label: 'Create Users', href: '/dashboard/superadmin/create-user' },
-  { icon: Users, label: 'Manage Students', href: '/dashboard/superadmin/manage-student' },
-  { icon: User, label: 'Manage Admins', href: '/dashboard/superadmin/manage-admin' },
-  { icon: Settings, label: 'Settings', href: '/dashboard/superadmin/setting' },
+  { icon: GraduationCap, label: 'Manage Students', href: '/dashboard/superadmin/manage-student' },
+  { icon: ShieldCheck, label: 'Manage Admins', href: '/dashboard/superadmin/manage-admin' },
+  { icon: Settings2, label: 'Settings', href: '/dashboard/superadmin/setting' },
 ];
 
 interface SidebarProps {

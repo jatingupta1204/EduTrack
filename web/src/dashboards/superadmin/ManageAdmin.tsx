@@ -36,14 +36,10 @@ export default function ManageAdmins() {
       const response = await fetch(`/api/v1/users/getAllUser?page=${currentPage}&role=Admin`);
       const data = await response.json();
 
-      if (!data?.data?.user) {
-        console.error("Invalid API response:", data);
-        return;
-      }
+      const adminData = data.data.user.filter((user: { role: string }) => user.role === "Admin");
 
       setAdmins(
-        data.data.user
-          .filter((user: { role: string }) => user.role === "Admin") // Ensure only Admin users
+        adminData
           .map((admin: Admin) => ({
             ...admin,
             id: admin.id || "",
@@ -52,7 +48,11 @@ export default function ManageAdmins() {
             username: admin.username || generateUsername(admin.first_name, admin.last_name), // Generate if missing
           }))
       );
-      setTotalPages(data.data.totalPages || 1);
+
+      const AdminsPerPage = data.data.limit;
+      const newTotalPages = Math.ceil(adminData.length / AdminsPerPage) || 1;
+
+      setTotalPages(newTotalPages);
     } catch (error) {
       console.error("Error fetching admins:", error);
     }

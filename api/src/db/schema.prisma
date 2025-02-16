@@ -18,8 +18,8 @@ model User {
   departmentId       String?
   first_name         String
   last_name          String
-  admissionYear      String?
-  currentSemester    String?
+  admissionYear      Int?
+  currentSemester    Int?
   status             StudentStatus? @default(Active)
   avatar             String?
   refreshToken       String?

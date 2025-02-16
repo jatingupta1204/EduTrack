@@ -11,8 +11,11 @@ interface Student {
   departmentId: string;
   admissionYear: number;
   currentSemester: number;
+  username?: string;
+  password?: string;
   batchId: string;
   status: "Active" | "Inactive" | "Graduated" | "Suspended";
+  role: string;
 }
 
 interface Department {
@@ -78,6 +81,11 @@ export default function ManageStudents() {
   const [totalPages, setTotalPages] = useState(1);
   const [dataLoaded, setDataLoaded] = useState(false);
 
+  const generateUsername = (first_name: string, last_name: string) => {
+    const randomNumber = Math.floor(1000 + Math.random() * 9000) // Random 4-digit number
+    return `${first_name.toLowerCase()}.${last_name.toLowerCase()}${randomNumber}`
+  }
+
   useEffect(() => {
     fetchMetadata();
   }, []);
@@ -110,31 +118,41 @@ export default function ManageStudents() {
     try {
       const response = await fetch(`/api/v1/users/getAllUser?page=${currentPage}`);
       const data = await response.json();
+
+      const studentData = data.data.user.filter((user: { role: string }) => user.role === "Student");
+  
       setStudents(
-        data.data.user
-          .filter((user: { role: string }) => user.role === "Student") // Only fetch students
+        studentData
           .map((student: Student) => ({
             ...student,
-            id: student.id || "",
             departmentId: departments.find((d) => d.id === student.departmentId)?.name || "Unknown",
             batchId: batches.find((b) => b.id === student.batchId)?.name || "Unknown",
-            status: student.status || "Active",
           }))
       );
-      setTotalPages(data.data.totalPages);
+
+      const studentsPerPage = data.data.limit;
+      const newTotalPages = Math.ceil(studentData.length / studentsPerPage) || 1;
+      
+      setTotalPages(newTotalPages);
     } catch (error) {
       console.error("Error fetching students:", error);
     }
   };
-
+  
   const handleSave = async (student: Student) => {
-    try {
-      const payload = {
-        ...student,
-        departmentId: departments.find((d) => d.name === student.departmentId)?.id || "",
-        batchId: batches.find((b) => b.name === student.batchId)?.id || "",
-      };
+    const department = departments.find((d) => d.name === student.departmentId);
+    const batch = batches.find((b) => b.name === student.batchId);
 
+    const payload = {
+      ...student,
+      departmentId: department?.id || student.departmentId, // Ensure we're sending ID, not name
+      batchId: batch?.id || student.batchId, // Ensure we're sending ID, not name
+      username: student.username || generateUsername(student.first_name, student.last_name),
+      password: student.password || "Student@123",
+      role: "Student",
+    };
+
+    try {
       const response = student.id
         ? await fetch(`/api/v1/users/update/${student.id}`, {
             method: "PUT",
@@ -146,7 +164,7 @@ export default function ManageStudents() {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload),
           });
-
+      
       if (response.ok) {
         fetchStudents();
       }
@@ -154,7 +172,8 @@ export default function ManageStudents() {
       console.error("Error saving student:", error);
     }
   };
-
+  
+  
   const handleDelete = async (student: Student) => {
     try {
       const response = await fetch(`/api/v1/users/delete/${student.id}`, {
@@ -163,15 +182,41 @@ export default function ManageStudents() {
   
       if (response.ok) {
         fetchStudents(); // Refresh student list after successful deletion
-      } else {
-        console.error("Failed to delete student");
       }
     } catch (error) {
       console.error("Error deleting student:", error);
     }
   };
-  
 
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page)
+  }
+
+  const Dropdown = ({
+    value,
+    onChange,
+    options,
+    label,
+  }: {
+    value: string;
+    onChange: (val: string) => void;
+    options: { id: string; name: string }[];
+    label: string;
+  }) => (
+    <select
+      className="w-full border rounded p-2"
+      value={value}
+      onChange={(e) => onChange(e.target.value)} // Ensures ID is sent
+    >
+      <option value="">{`Select ${label}`}</option>
+      {options.map((option) => (
+        <option key={option.id} value={option.id}>
+          {option.name} {/* Displays full name but stores ID */}
+        </option>
+      ))}
+    </select>
+  );
+  
   const renderForm = (student: Student, setStudent: (item: Student) => void) => {
     return (
       <div className="space-y-4 max-h-96 overflow-y-auto p-2">
@@ -189,21 +234,11 @@ export default function ManageStudents() {
         </div>
         <div>
           <label className="block text-sm font-medium">Department</label>
-          <select className="w-full border rounded p-2" value={student.departmentId} onChange={(e) => setStudent({ ...student, departmentId: e.target.value })}>
-            <option value="">Select Department</option>
-            {departments.map((dept) => (
-              <option key={dept.id} value={dept.id}>{dept.name}</option>
-            ))}
-          </select>
+          <Dropdown value={student.departmentId} onChange={(id) => setStudent({ ...student, departmentId: id})} options={departments} label="Department" />
         </div>
         <div>
           <label className="block text-sm font-medium">Batch</label>
-          <select className="w-full border rounded p-2" value={student.batchId} onChange={(e) => setStudent({ ...student, batchId: e.target.value })}>
-            <option value="">Select Batch</option>
-            {batches.map((batch) => (
-              <option key={batch.id} value={batch.id}>{batch.name}</option>
-            ))}
-          </select>
+          <Dropdown value={student.batchId} onChange={(id) => setStudent({ ...student, batchId: id})} options={batches} label="Batch" />
         </div>
         <div>
           <label className="block text-sm font-medium">Admission Year</label>
@@ -244,7 +279,7 @@ export default function ManageStudents() {
         renderForm={renderForm} 
         currentPage={currentPage} 
         totalPages={totalPages} 
-        onPageChange={setCurrentPage} 
+        onPageChange={handlePageChange} 
       />
     </div>
   ) 

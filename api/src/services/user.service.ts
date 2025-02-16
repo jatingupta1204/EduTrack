@@ -160,10 +160,14 @@ const changeUser = async(id: string, input: changeUserInfo) => {
     if(!existingUser){
         throw new ApiError(401, "User Not Found");
     }
-
+    
     const filteredData = Object.fromEntries(
         Object.entries(data).filter(([_, value]) => value !== undefined && value !== null)
     );
+    
+    if (filteredData.password !== undefined) {
+        filteredData.password = await hashpassword(String(filteredData.password));
+    }
 
     const updatedUser = await prisma.user.update({
         where: {

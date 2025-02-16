@@ -169,7 +169,7 @@ const getAllUser = asyncHandler(async(req: Request, res: Response) => {
     const totalUsers = await prisma.user.count();
     const totalPages = paginate ? Math.ceil(totalUsers / limit) : 1;
 
-    res.status(200).json(new ApiResponse(200, {user, totalPages}, "Users fetched Successfully"));
+    res.status(200).json(new ApiResponse(200, {user, totalPages, limit}, "Users fetched Successfully"));
 })
 
 const getUserById = asyncHandler(async(req: Request, res: Response) => {
