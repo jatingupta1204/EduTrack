@@ -27,11 +27,22 @@ model User {
   teacherEnrollments Enrollment[]   @relation(name: "TeacherEnrollments") // Teacher enrollments
   grades             Grade[]
   attendances        Attendance[]
+  activities Activity[]
   batchesCoordinated Batch[]        @relation(name: "BatchCoordinator") // Teacher coordinating batches
   batch              Batch?         @relation(name: "BatchStudents", fields: [batchId], references: [id], onDelete: Cascade)
   batchId            String?
   created_at         DateTime       @default(now())
   updated_at         DateTime       @updatedAt
+}
+
+model Activity {
+  id String @id @default(uuid())
+  user User? @relation(fields: [userId], references: [id])
+  userId String?
+  description String
+  activityType String
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 }
 
 // Course model

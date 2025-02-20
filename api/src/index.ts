@@ -27,6 +27,7 @@ import departmentRouter from "./routes/department.routers";
 import semesterRouter from "./routes/semester.routers";
 import batchRouter from "./routes/batch.routers";
 import gradeRouter from "./routes/grade.routers";
+import dashboardRouter from "./routes/dashboard.routers";
 
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/notices", noticeRouter);
@@ -38,6 +39,7 @@ app.use("/api/v1/departments", departmentRouter);
 app.use("/api/v1/semesters", semesterRouter);
 app.use("/api/v1/batches", batchRouter);
 app.use("/api/v1/grades", gradeRouter);
+app.use("/api/v1/dashboard", dashboardRouter);
 
 app.listen(PORT, () => {
     console.log(`Server is running at PORT - ${PORT}`);
